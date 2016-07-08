@@ -1,3 +1,7 @@
+__author__ = "Pavel Polyakov"
+__copyright__ = "Copyright (C) 2016 Pavel Polyakov"
+__version__ = "0.3"
+
 import re
 import time
 from models import Port

@@ -1,10 +1,7 @@
 # It's copied from stackoverflow
 # http://stackoverflow.com/questions/6270782/how-to-send-an-email-with-python
 
-# Import smtplib for the actual sending function
 import smtplib
-
-# Here are the email package modules we'll need
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 

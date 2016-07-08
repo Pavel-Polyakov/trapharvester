@@ -1,12 +1,15 @@
+__author__ = "Pavel Polyakov"
+__copyright__ = "Copyright (C) 2016 Pavel Polyakov"
+__version__ = "0.3"
+
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timedelta
-from config import DB_URL
+from config import DB_URL, FLAP_THR_MINUTES, FLAP_THR_COUNT
 
-from config import FLAP_THR_MINUTES, FLAP_THR_COUNT
 def connect_db(db_url=DB_URL, do_echo=False):
     engine = create_engine(db_url, echo=do_echo)
     Base.metadata.bind = engine
