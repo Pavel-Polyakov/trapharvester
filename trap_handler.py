@@ -26,7 +26,7 @@ if __name__ == "__main__":
                 mood = 'OK'
             elif 'Down' in trap.event:
                 mood = 'PROBLEM'
-            elif:
+            else:
                 mood = 'Something'
             subject = "{mood}: {hostname}, {ifname} ({ifalias}) {event}".format(
                                                         mood = mood,
@@ -37,5 +37,4 @@ if __name__ == "__main__":
             text = subject
             send_mail(subject,'woolly@ihome.ru',text)
     else:
-        logging.info("I don't know how to deal with it.")
-        logging.info('\nRecieved trap:\n'+raw)
+        logging.info("I don't know how to deal with it:\n\n"+raw)
