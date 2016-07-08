@@ -35,7 +35,7 @@ class PortProcessor(object):
         ifAdminStatus = trap.get('ifAdminStatus', getSnmp(host,'IF-MIB::ifAdminStatus.'+ifIndex))
         ifOperStatus = trap.get('ifOperStatus', getSnmp(host,'IF-MIB::ifOperStatus.'+ifIndex))
 
-        return Link(time = timestamp,
+        return Port(time = timestamp,
                     host = host,
                     hostname = hostname,
                     event = event,
