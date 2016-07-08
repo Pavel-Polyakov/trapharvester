@@ -22,19 +22,7 @@ if __name__ == "__main__":
         session.add(trap)
         session.commit()
         if '.' not in trap.ifName:
-            if 'Up' in trap.event:
-                mood = 'OK'
-            elif 'Down' in trap.event:
-                mood = 'PROBLEM'
-            else:
-                mood = 'Something'
-            subject = "{mood}: {hostname}, {ifname} ({ifalias}) {event}".format(
-                                                        mood = mood,
-                                                        hostname = trap.hostname,
-                                                        ifname = trap.ifName,
-                                                        ifalias = trap.ifAlias,
-                                                        event = trap.event.replace('IF-MIB::',''))
-            text = subject
-            send_mail(subject,'woolly@ihome.ru',text)
+            text = trap.for_mail()
+            send_mail(text,'woolly@ihome.ru',text)
     else:
         logging.info("I don't know how to deal with it:\n\n"+raw)

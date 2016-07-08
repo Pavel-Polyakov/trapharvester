@@ -32,3 +32,18 @@ class Port(Base):
         return "Port Trap. {host}: {ifname} ({ifalias})".format(host = self.hostname,
                                                                ifname = self.ifName,
                                                                ifalias = self.ifAlias)
+    def for_mail(self):
+        template = "{mood}: {hostname} {ifname} ({ifalias}) {event}"
+        if 'Up' in self.event:
+            mood = 'OK'
+        elif 'Down' in self.event:
+            mood = 'PROBLEM'
+        else:
+            mood = 'Something'
+
+        text = template.format(mood = mood,
+                                hostname = self.host if self.hostname is None else self.hostname,
+                                ifname = self.ifName,
+                                ifalias = self.ifAlias,
+                                event = self.event.replace('IF-MIB::',''))
+        return text
