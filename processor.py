@@ -32,6 +32,8 @@ class LinkProcessor(object):
         ifIndex = trap.get('ifIndex')
         ifName = trap.get('ifName', getSnmp(host,'IF-MIB::ifName.'+ifIndex))
         ifAlias = trap.get('ifAlias', getSnmp(host,'IF-MIB::ifAlias.'+ifIndex))
+        ifAdminStatus = trap.get('ifAdminStatus', getSnmp(host,'IF-MIB::ifAdminStatus.'+ifIndex))
+        ifOperStatus = trap.get('ifOperStatus', getSnmp(host,'IF-MIB::ifOperStatus.'+ifIndex))
 
         return Link(time = timestamp,
                     host = host,
@@ -39,4 +41,6 @@ class LinkProcessor(object):
                     event = event,
                     ifIndex = ifIndex,
                     ifName = ifName,
-                    ifAlias = ifAlias)
+                    ifAlias = ifAlias,
+                    ifAdminStatus = ifAdminStatus,
+                    ifOperStatus = ifOperStatus)

@@ -25,6 +25,8 @@ class Link(Base):
     ifIndex = Column(String(255))
     ifName = Column(String(255))
     ifAlias = Column(String(255))
+    ifAdminStatus = Column(String(255))
+    ifOperStatus = Column(String(255))
 
     def __repr__(self):
         return "Link Trap. {host}: {ifname} ({ifalias})".format(host = self.hostname,
