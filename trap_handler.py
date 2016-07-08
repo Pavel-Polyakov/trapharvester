@@ -9,6 +9,8 @@ from processor import Processor
 from mailer import send_mail
 import logging
 
+from config import MAIL_TO
+
 logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.INFO, filename = u'/var/log/trap_handler.log')
 formatter = logging.Formatter('%(asctime)s - %(message)s')
 
@@ -28,9 +30,9 @@ if __name__ == "__main__":
                     trap.block(session)
                     text = 'BLOCKED: '+str(trap)
                     logging.info(text)
-                    send_mail(text, 'woolly@ihome.ru', text)
+                    send_mail(text, MAIL_TO, text)
                 else:
                     text = trap.for_mail()
-                    send_mail(text,'woolly@ihome.ru',text)
+                    send_mail(text, MAIL_TO,text)
     else:
         logging.info("I don't know how to deal with it:\n\n"+raw)

@@ -4,8 +4,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timedelta
+from config import DB_URL
 
-def connect_db(db_url='mysql+pymysql://trap:0o9i8u@localhost/traps', do_echo=False):
+from config import FLAP_THR_MINUTES, FLAP_THR_COUNT
+def connect_db(db_url=DB_URL, do_echo=False):
     engine = create_engine(db_url, echo=do_echo)
     Base.metadata.bind = engine
     Base.metadata.create_all(engine)
@@ -31,8 +33,8 @@ class BasePort(Base):
         return bool(b)
 
     def is_flapping(self, session):
-        minutes = 10
-        threshold = 4
+        minutes = FLAP_THR_MINUTES
+        threshold = FLAP_THR_COUNT
         count = session.query(Port).\
                     filter(Port.host == self.host).\
                     filter(Port.ifIndex == self.ifIndex).\

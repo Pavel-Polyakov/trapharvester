@@ -1,10 +1,12 @@
 from subprocess import check_output, CalledProcessError
 import re
 
-def getSnmp(host,OID):
+from config import SNMP_COMMUNITY
+
+def getSnmp(host,oid):
     if host is not None:
         try:
-            raw = check_output(["snmpget", "-v2c", "-cqwsxczasde", host, OID])
+            raw = check_output(["snmpget", "-v2c", "-c"+SNMP_COMMUNITY, host, oid])
             return re.sub('^.*STRING: ','',raw).strip()
         except CalledProcessError:
             return None
