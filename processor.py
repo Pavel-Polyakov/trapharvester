@@ -1,36 +1,17 @@
 import re
 import time
 from models import Link
-from functions import getSnmp
-
+from functions import getSnmp, parseTrap
 
 class Processor(object):
     def work(self, data):
-        trap = self._parse(data)
-        type_ = trap.get('snmpTrapOID.0', None)
-        if self.type_ in ['IF-MIB::linkUp','IF-MIB::linkDown']
+        trap = parseTrap(data)
+        oid = trap.get('snmpTrapOID.0', None)
+	if oid in ['IF-MIB::linkUp','IF-MIB::linkDown']:
             processor = LinkProcessor()
             return processor.job(trap)
         else:
             return None
-
-    def _parse(data):
-        """return dict with parsed trap"""
-        res = {}
-        data = data.split('\n')
-        # common info for any trap
-        host, server = re.findall('\[(.*?)\]', data[0])
-        # specific info is only after second line
-        # slice each row for 2 parts: header and value
-        pre = [re.split(':\s*?:',x,1)[-1] for x in data[2:] if x != '']
-        tuples = [tuple(re.split('\s',x,1)) for x in pre]
-        headers = [re.sub('\[.*?\]','',x[0]) for x in tuples]
-        values = [x[-1] for x in tuples]
-        # merge it to dict
-        res = dict(zip(headers,values))
-        res['host'] = host
-        res['server'] = server
-        return res
 
 class LinkProcessor(object):
     """Trap example:
@@ -44,7 +25,7 @@ class LinkProcessor(object):
     IF-MIB::ifName.567 ge-0/0/21.0"""
 
     def job(self, trap):
-        time = time.time()
+        timestamp = time.time()
         host = trap['host']
         hostname = getSnmp(host, 'SNMPv2-MIB::sysName.0')
         event = trap['snmpTrapOID.0']
