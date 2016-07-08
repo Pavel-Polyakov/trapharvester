@@ -14,8 +14,8 @@ def connect_db(db_url='mysql+pymysql://trap:0o9i8u@localhost/traps', do_echo=Fal
 Base = declarative_base()
 metadata = Base.metadata
 
-class Link(Base):
-    __tablename__ = "link"
+class Port(Base):
+    __tablename__ = "ports"
 
     id = Column(Integer, primary_key=True)
     time = Column(String(255))
@@ -29,6 +29,6 @@ class Link(Base):
     ifOperStatus = Column(String(255))
 
     def __repr__(self):
-        return "Link Trap. {host}: {ifname} ({ifalias})".format(host = self.hostname,
+        return "Port Trap. {host}: {ifname} ({ifalias})".format(host = self.hostname,
                                                                ifname = self.ifName,
                                                                ifalias = self.ifAlias)

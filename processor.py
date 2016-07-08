@@ -1,6 +1,6 @@
 import re
 import time
-from models import Link
+from models import Port
 from functions import getSnmp, parseTrap
 
 class Processor(object):
@@ -8,12 +8,12 @@ class Processor(object):
         trap = parseTrap(data)
         oid = trap.get('snmpTrapOID.0', None)
 	if oid in ['IF-MIB::linkUp','IF-MIB::linkDown']:
-            processor = LinkProcessor()
+            processor = PortProcessor()
             return processor.job(trap)
         else:
             return None
 
-class LinkProcessor(object):
+class PortProcessor(object):
     """Trap example:
     UDP: [192.168.168.222]:59010->[85.112.112.25]:162
     UDP: [192.168.168.222]:59010->[85.112.112.25]:162
