@@ -21,9 +21,16 @@ if __name__ == "__main__":
         session, e = connect_db()
         session.add(trap)
         session.commit()
+        # ignore subinterfaces
         if '.' not in trap.ifName:
-            if not trap.is_blocked():
-                text = trap.for_mail()
-                send_mail(text,'woolly@ihome.ru',text)
+            if not trap.is_blocked(session):
+                if trap.is_flapping(session):
+                    trap.block(session)
+                    text = 'BLOCKED: '+str(trap)
+                    logging.info(text)
+                    send_mail(text, 'woolly@ihome.ru', text)
+                else:
+                    text = trap.for_mail()
+                    send_mail(text,'woolly@ihome.ru',text)
     else:
         logging.info("I don't know how to deal with it:\n\n"+raw)
