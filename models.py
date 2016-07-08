@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.sql import func
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -18,7 +19,7 @@ class Port(Base):
     __tablename__ = "ports"
 
     id = Column(Integer, primary_key=True)
-    time = Column(String(255))
+    time = Column(DateTime(timezone=True), default=func.now())
     host = Column(String(255))
     hostname = Column(String(255))
     event = Column(String(255))
@@ -47,3 +48,28 @@ class Port(Base):
                                 ifalias = self.ifAlias,
                                 event = self.event.replace('IF-MIB::',''))
         return text
+
+    def is_blocked(self, session):
+        b = session.query(BlackPort).filter(BlackPort.host == self.host).filter(BlackPort.ifIndex == self.ifIndex).first()
+        return bool(b)
+
+    def block(self, session):
+        b = BlackPort(host = self.host, ifIndex = self.ifIndex)
+        session.add(b)
+        session.commit()
+
+    def unblock(self, session):
+        session.query(BlackPort).filter(BlackPort.host == self.host).filter(BlackPort.ifIndex == self.ifIndex).delete()
+        session.commit()
+
+
+class BlackPort(Base):
+    __tablename__ = "blacklist"
+
+    id = Column(Integer, primary_key=True)
+    host = Column(String(255))
+    ifIndex = Column(String(255))
+
+    def __repr__(self):
+        return "BlackPort. {host}: {ifindex})".format(host = self.host,
+                                                      ifname = self.ifindex)

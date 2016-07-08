@@ -25,7 +25,6 @@ class PortProcessor(object):
     IF-MIB::ifName.567 ge-0/0/21.0"""
 
     def job(self, trap):
-        timestamp = time.time()
         host = trap['host']
         hostname = getSnmp(host, 'SNMPv2-MIB::sysName.0')
         event = trap['snmpTrapOID.0']
@@ -35,7 +34,7 @@ class PortProcessor(object):
         ifAdminStatus = trap.get('ifAdminStatus', getSnmp(host,'IF-MIB::ifAdminStatus.'+ifIndex))
         ifOperStatus = trap.get('ifOperStatus', getSnmp(host,'IF-MIB::ifOperStatus.'+ifIndex))
 
-        return Port(time = timestamp,
+        return Port(
                     host = host,
                     hostname = hostname,
                     event = event,

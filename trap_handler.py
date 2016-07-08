@@ -22,7 +22,8 @@ if __name__ == "__main__":
         session.add(trap)
         session.commit()
         if '.' not in trap.ifName:
-            text = trap.for_mail()
-            send_mail(text,'woolly@ihome.ru',text)
+            if not trap.is_blocked():
+                text = trap.for_mail()
+                send_mail(text,'woolly@ihome.ru',text)
     else:
         logging.info("I don't know how to deal with it:\n\n"+raw)
