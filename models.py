@@ -10,6 +10,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timedelta
 from config import DB_URL, FLAP_THR_MINUTES, FLAP_THR_COUNT
 
+from html_templates import mail_template_trap, mail_template_full, mail_template_style
+
 def connect_db(db_url=DB_URL, do_echo=False):
     engine = create_engine(db_url, echo=do_echo)
     Base.metadata.bind = engine
@@ -70,6 +72,15 @@ class Port(BasePort):
         return template.format(host = self.hostname,
                     ifname = self.ifName,
                     ifalias = self.ifAlias)
+    
+    def for_html(self,event='SOMETHING', mood='neutral'):
+        return mail_template_trap.format(time=self.time,
+                                        hostname=self.hostname if self.hostname is not None else self.host,
+                                        port=self.ifName,
+                                        description=self.ifAlias if self.ifAlias is not None else 'NO DESCRIPTION',
+                                        event=event,
+                                        mood=mood)
+
     def for_mail(self):
         template = "{mood}: {hostname} {ifname} ({ifalias}) {event}"
         if 'Up' in self.event:
