@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
-# mail_template_trap = u"""<h4><span class="label label-{mood}">{event}</span>
-# 			 <span class="label label-primary">{hostname}</span>
-# 			 <span class="label label-primary">{port} ({description})</span>
-# 			 <span class="label label-info">{time}</span></h4>"""
 mail_template_trap = u"""<span class="label label-{mood}">{event}</span><white> | </white>
-			 <span class="label label-primary">{hostname}</span><white> : </white>
+			 <span class="label label-primary2">{hostname}</span><white> : </white>
 			 <span class="label label-primary">{port} ({description})</span><white> | </white>
 			 <span class="label label-info">{time}</span><br>"""
 mail_template_full = u"""<!DOCTYPE html>
@@ -37,10 +33,13 @@ h3 {
     font-size: 24px;
 }
 .label-primary {
-    background-color: #337ab7;
+    background-color: #036ec9;
 }
 .label-success {
     background-color: #5cb85c;
+}
+.label-primary2 {
+    background-color: #0e2948;
 }
 .label-ok {
     background-color: #5cb85c;
@@ -49,10 +48,10 @@ h3 {
     background-color: #d9534f;
 }
 .label-neutral {
-    background-color: #5bc0de;
+    background-color: #94afab;
 }
 .label-info {
-    background-color: #5bc0de;
+    background-color: #afb2b7;
 }
 .label-danger {
     background-color: #d9534f;
