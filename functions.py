@@ -48,7 +48,23 @@ def for_html_trap_list(traps):
 
 def for_html_title(traps):
     if len(traps) > 1:
-        return 'trap_handler. '+', '.join([x.hostname if x.hostname else x.host for x in traps])
+        text_hosts = []
+        hosts = set([(x.host,x.hostname) for x in traps])
+        for host in hosts:
+            host_text = host[1] if host[1] else host[0]
+            
+            host_traps = [x for x in traps if x.host == host[0]]
+            host_events = [x.event for x in host_traps]
+            
+            events_pre = []
+            for event in set(host_events):
+                count = len([x for x in host_traps if x.event == event])
+                event_text = "{event}: {count}".format(event=event, count=count)
+                events_pre.append(event_text)
+            events_text = ', '.join(events_pre)
+            
+            text_hosts.append("{host} ({events})".format(host=host_text,events=events_text))
+        return 'trap_handler. '+', '.join(text_hosts)
     if len(traps) == 1:
         trap = traps[0]
         return 'trap_handler. {host}: {port} ({alias}) {event}'.format(
@@ -57,4 +73,4 @@ def for_html_title(traps):
                         alias=trap.ifAlias if trap.ifAlias else 'NO DESCRIPTION',
                         event=trap.event)
     else:
-        return 'trap_handler. SOMETHING'
+        return 'trap_handler. Something went wrong'
