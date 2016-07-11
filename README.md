@@ -7,6 +7,6 @@
 
 ### How do I get set up? ###
 
-1 Download and install snmptrapd
-2 Edit config.py for your mysql database settings
-3 Add the next row in /etc/snmp/snmptrapd.conf: "traphandle default ${PATH}/trap_handler.sh"
+* Download and install snmptrapd
+* Edit config.py for your mysql database settings
+* Add the next row in /etc/snmp/snmptrapd.conf: "traphandle default ${PATH}/trap_handler.sh"
