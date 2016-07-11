@@ -26,10 +26,10 @@ if __name__ == "__main__":
         text_traps = ''
         text_title = ''
         if len(blacklist) > 0:
-            text_title += 'Still flapping: '.upper()+', '.join([x.ifAlias for x in blacklist])+' '
+            text_title += 'Still flapping: '.upper()+', '.join([x.ifAlias if x.ifAlias is not None else x.ifName for x in blacklist])+' '
             text_traps += ''.join([x.for_html(event='Still flapping'.upper(),mood='problem') for x in blacklist])
         if len(whitelist) > 0:
-            text_title += 'Stopped flapping: '.upper()+', '.join([x.ifAlias for x in whitelist])+' '
+            text_title += 'Stopped flapping: '.upper()+', '.join([x.ifAlias if x.ifAlias is not None else x.ifName for x in whitelist])+' '
             text_traps += ''.join([x.for_html(event='Stop flapping'.upper(),mood='ok') for x in whitelist])
 
         text_main = mail_template_full.format(traps=text_traps,style=mail_template_style)

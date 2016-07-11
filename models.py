@@ -77,6 +77,8 @@ class Port(BasePort):
         return mail_template_trap.format(time=self.time,
                                         hostname=self.hostname if self.hostname is not None else self.host,
                                         port=self.ifName,
+                                        # ifindex=self.ifIndex,
+					opermood='ok' if 'up' in self.ifOperStatus else 'problem',
                                         description=self.ifAlias if self.ifAlias is not None else 'NO DESCRIPTION',
                                         event=event,
                                         mood=mood)

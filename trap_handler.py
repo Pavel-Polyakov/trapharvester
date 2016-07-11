@@ -30,10 +30,10 @@ if __name__ == "__main__":
                 if trap.is_flapping(session):
                     trap.block(session)
                     text_traps = trap.for_html(event='FLAPPING',mood='problem')
-                    text_title = "BLOCKED: {host}: {port} ({alias})".format(
-                                                          host=trap.hostname,
+		    text_title = "BLOCKED: {host}: {port} ({alias})".format(
+                                                          host=trap.hostname if trap.hostname is not None else trap.host,
                                                           port=trap.ifName,
-                                                          alias=trap.ifAlias)
+                                                          alias=trap.ifAlias if trap.ifAlias is not None else 'NO DESCRIPTION')
                     text_main = mail_template_full.format(traps=text_traps,style=mail_template_style)
                     send_mail(text_title, MAIL_TO, text_main)
                     logging.info(text_title)
@@ -41,13 +41,13 @@ if __name__ == "__main__":
                     mood = 'ok' if 'Up' in trap.event else 'problem'
                     event = trap.event.replace('IF-MIB::link','').upper()
                     text_traps = trap.for_html(event=event,mood=mood)
-                    text_title = "{mood}: {host}: {port} ({alias})".format(
+		    text_title = "{mood}: {host}: {port} ({alias})".format(
                                                           mood=mood.upper(),
-                                                          host=trap.hostname,
+                                                          host=trap.hostname if trap.hostname is not None else trap.host,
                                                           port=trap.ifName,
-                                                          alias=trap.ifAlias)
+                                                          alias=trap.ifAlias if trap.ifAlias is not None else 'NO DESCRIPTION')
                     text_main = mail_template_full.format(traps=text_traps,style=mail_template_style)
                     send_mail(text_title, MAIL_TO,text_main)
                     logging.info(text_title)
-        else:
-            logging.info("I don't know how to deal with it:\n\n"+raw)
+    else:
+	logging.info("I don't know how to deal with it:\n\n"+raw)
