@@ -10,10 +10,10 @@ from mailer import send_mail
 import logging
 
 from config import MAIL_TO
-from html_templates import mail_template_trap, mail_template_full, mail_template_style
+from html_templates import mail_template_trap, mail_template_full, mail_template_style, mail_template_list
 
-logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.INFO, filename = u'/var/log/trap_handler.log')
-formatter = logging.Formatter('%(asctime)s - %(message)s')
+# logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.INFO, filename = u'/var/log/trap_handler.log')
+# formatter = logging.Formatter('%(asctime)s - %(message)s')
 
 if __name__ == "__main__":
     raw = sys.stdin.read()
@@ -29,25 +29,36 @@ if __name__ == "__main__":
             if not trap.is_blocked(session):
                 if trap.is_flapping(session):
                     trap.block(session)
-                    text_traps = trap.for_html(event='FLAPPING',mood='problem')
-		    text_title = "BLOCKED: {host}: {port} ({alias})".format(
-                                                          host=trap.hostname if trap.hostname is not None else trap.host,
-                                                          port=trap.ifName,
-                                                          alias=trap.ifAlias if trap.ifAlias is not None else 'NO DESCRIPTION')
-                    text_main = mail_template_full.format(traps=text_traps,style=mail_template_style)
-                    send_mail(text_title, MAIL_TO, text_main)
-                    logging.info(text_title)
+		    text_list = ''
+                    trap.event = 'Flapping'
+		    hosts = set([(x.host,x.hostname) for x in [trap]])
+		    for host in hosts:
+			ports = [x.for_html() for x in [trap] if x.host == host[0]]
+			text_ports = ''.join(ports)
+			text_list += mail_template_list.format(host=host[0],hostname=host[1],traps=text_ports)
+		    text_title = 'trap_handler. {host}: {port} ({alias}) {event}'.format(
+							host=trap.hostname if trap.hostname else trap.host,
+							port=trap.ifName,
+							alias=trap.ifAlias if trap.ifAlias else 'NO DESCRIPTION',
+							event=trap.event)
+		    text_main = mail_template_full.format(text_list=text_list,style=mail_template_style)
+		    send_mail(text_title, MAIL_TO, text_main)
+		    logging.info(text_title)
 		else:
-                    mood = 'ok' if 'Up' in trap.event else 'problem'
-                    event = trap.event.replace('IF-MIB::link','').upper()
-                    text_traps = trap.for_html(event=event,mood=mood)
-		    text_title = "{mood}: {host}: {port} ({alias})".format(
-                                                          mood=mood.upper(),
-                                                          host=trap.hostname if trap.hostname is not None else trap.host,
-                                                          port=trap.ifName,
-                                                          alias=trap.ifAlias if trap.ifAlias is not None else 'NO DESCRIPTION')
-                    text_main = mail_template_full.format(traps=text_traps,style=mail_template_style)
-                    send_mail(text_title, MAIL_TO,text_main)
+                    trap.event = trap.event.replace('IF-MIB::link','')
+                    text_list = ''
+                    hosts = set([(x.host,x.hostname) for x in [trap]])
+                    for host in hosts:
+                        ports = [x.for_html() for x in [trap] if x.host == host[0]]
+                        text_ports = ''.join(ports)
+                        text_list += mail_template_list.format(host=host[0],hostname=host[1],traps=text_ports)
+                    text_title = 'trap_handler. {host}: {port} ({alias}) {event}'.format(
+                                                        host=trap.hostname if trap.hostname else trap.host,
+                                                        port=trap.ifName,
+                                                        alias=trap.ifAlias if trap.ifAlias else 'NO DESCRIPTION',
+                                                        event=trap.event)
+                    text_main = mail_template_full.format(text_list=text_list,style=mail_template_style)
+                    send_mail(text_title, MAIL_TO, text_main)
                     logging.info(text_title)
     else:
 	logging.info("I don't know how to deal with it:\n\n"+raw)

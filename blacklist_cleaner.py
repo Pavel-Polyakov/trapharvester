@@ -7,7 +7,7 @@ import sys
 from models import connect_db, BlackPort, Port
 from mailer import send_mail
 from config import MAIL_TO
-from html_templates import mail_template_trap, mail_template_full, mail_template_style
+from html_templates import mail_template_trap, mail_template_full, mail_template_style, mail_template_list
 
 if __name__ == "__main__":
     s,e = connect_db()
@@ -21,16 +21,20 @@ if __name__ == "__main__":
         # whitelist = [x for x in ports if not x.is_flapping(s)]
         whitelist = [x for x in ports if not x.is_flapping(s)]
         blacklist = [x for x in ports if x not in whitelist]
-        for w in whitelist:
-            w.unblock(s)
-        text_traps = ''
-        text_title = ''
-        if len(blacklist) > 0:
-            text_title += 'Still flapping: '.upper()+', '.join([x.ifAlias if x.ifAlias is not None else x.ifName for x in blacklist])+' '
-            text_traps += ''.join([x.for_html(event='Still flapping'.upper(),mood='problem') for x in blacklist])
-        if len(whitelist) > 0:
-            text_title += 'Stopped flapping: '.upper()+', '.join([x.ifAlias if x.ifAlias is not None else x.ifName for x in whitelist])+' '
-            text_traps += ''.join([x.for_html(event='Stop flapping'.upper(),mood='ok') for x in whitelist])
+        for p in whitelist:
+            p.unblock(s)
+        for p in whitelist:
+            p.event = 'Stopped Flapping'
+        for p in blacklist:
+            p.event = 'Still Flapping'
 
-        text_main = mail_template_full.format(traps=text_traps,style=mail_template_style)
+        text_list = ''
+        hosts = set([(x.host,x.hostname) for x in whitelist+blacklist])
+        for host in hosts:
+            ports = [x.for_html() for x in whitelist+blacklist if x.host == host[0]]
+            text_ports = ''.join(ports)
+            text_list += mail_template_list.format(host=host[0],hostname=host[1],traps=text_ports)
+
+	text_title = 'trap_handler. '+', '.join([x[1] for x in hosts])
+        text_main = mail_template_full.format(text_list=text_list,style=mail_template_style)
         send_mail(text_title, MAIL_TO, text_main)

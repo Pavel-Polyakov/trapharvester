@@ -1,21 +1,9 @@
 # -*- coding: utf-8 -*-
 mail_template_trap = u"""
-<span class="label label-{mood}">{event}</span><white> | </white>
-<span class="label label-primary2">{hostname}</span><white> : </white>
-<span class="label label-primary">{port} ({description})</span><white> | </white>
-<span class="label label-{opermood}">{time}</span>"""
-mail_template_trap_new = u"""
-<table><tbody>
-<tr><td>
-<span class="label label-{mood}">{event}</span><white> | </white>
-<span class="label label-primary2">{hostname}</span><white> : </white>
-<span class="label label-primary">{port} ({description})</span><white> | </white>
-<span class="label label-{opermood}">{time}</span>
-</td></tr>
-<tr><td>
-<img style="display:block;" width="100%" height="100%" src='http://isweethome.ihome.ru/api/?ifindex={ifindex}&flapchart'>
-</td></tr>
-</tbody></table>"""
+    <li> <b>{name} ({description})</b> <white> | </white> {time} <white> | </white><span class="label label-{mood}">{event}</span></li>"""
+mail_template_list = u"""<h3>{hostname} ({host})</h3>
+                        <ul>{traps}</ul>"""
+
 mail_template_full = u"""<!DOCTYPE html>
 <html>
   <head>
@@ -26,7 +14,7 @@ mail_template_full = u"""<!DOCTYPE html>
   </style>
   <body>
     <div>
-      {traps}
+    {text_list}
     </div>
   </body>
 </html>"""
@@ -73,6 +61,7 @@ h3 {
     display: inline;
     padding: .2em .6em .3em;
     line-height: 2;
+    text-size: 80%;
     color: #fff;
     text-align: center;
     white-space: nowrap;
@@ -82,4 +71,22 @@ h3 {
 .small {
     font-size: 85%;
 }"""
+
+mail_template_trap_old = u"""
+<span class="label label-{mood}">{event}</span><white> | </white>
+<span class="label label-primary2">{hostname}</span><white> : </white>
+<span class="label label-primary">{port} ({description})</span><white> | </white>
+<span class="label label-{opermood}">{time}</span>"""
+mail_template_trap_image = u"""
+<table><tbody>
+<tr><td>
+<span class="label label-{mood}">{event}</span><white> | </white>
+<span class="label label-primary2">{hostname}</span><white> : </white>
+<span class="label label-primary">{port} ({description})</span><white> | </white>
+<span class="label label-{opermood}">{time}</span>
+</td></tr>
+<tr><td>
+<img style="display:block;" width="100%" height="100%" src='http://isweethome.ihome.ru/api/?ifindex={ifindex}&flapchart'>
+</td></tr>
+</tbody></table>"""
 
