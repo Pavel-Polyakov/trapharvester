@@ -57,6 +57,19 @@ class BasePort(Base):
                     filter(BlackPort.ifIndex == self.ifIndex).delete()
         session.commit()
 
+    def is_last(self, session):
+        traps = self.getcircuit(session)
+        if len(traps) == 1:
+            return True
+        else:
+            return bool(self is traps[-1])
+        
+    def getcircuit(self, session):
+        traps = session.query(Port).\
+                    filter(Port.host == self.host).\
+                    filter(Port.time > self.time - timedelta(seconds=12)).all()
+        return traps
+
 class Port(BasePort):
     __tablename__ = "ports"
 
@@ -72,10 +85,10 @@ class Port(BasePort):
         return template.format(host = self.hostname,
                     ifname = self.ifName,
                     ifalias = self.ifAlias)
-    
+
     def for_html(self):
         if self.event in ['Up', 'Stopped Flapping']:
-                mood = 'Ok'
+            mood = 'Ok'
         elif self.event in ['Down', 'Flapping', 'Still Flapping']:
             mood = 'Problem'
         else:

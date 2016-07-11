@@ -8,7 +8,7 @@ from models import connect_db
 from processor import Processor
 from mailer import send_mail
 import logging
-
+import time
 from config import MAIL_TO
 from functions import for_html_trap_list, for_html_title
 
@@ -34,14 +34,16 @@ IF-MIB::ifOperStatus[544] 0
 IF-MIB::ifName[544] ge-0/0/21"""
 
 if __name__ == "__main__":
+    # just for testing
     argv = sys.argv
     if len(argv) > 1:
-        if argv[-1] == 'up':
+        if argv[1] == 'up':
             raw = trap_up
-        if argv[-1] == 'down':
+        if argv[1] == 'down':
             raw = trap_down
     else:
         raw = sys.stdin.read()
+
     processor = Processor()
     trap = processor.work(raw)
     if trap is not None:
@@ -49,19 +51,26 @@ if __name__ == "__main__":
         session, e = connect_db()
         session.add(trap)
         session.commit()
-        # ignore subinterfaces
-        if '.' not in trap.ifName:
-            if not trap.is_blocked(session):
-
-                if trap.is_flapping(session):
-                    trap.block(session)
-                    trap.event = 'Flapping'
-                else:
+        time.sleep(10)
+        if trap.is_last(session):
+            traps_raw = trap.getcircuit(session)
+            traps = []
+            for trap in traps_raw:
+                # ignore subinterfaces
+                if '.' not in trap.ifName:
                     trap.event = trap.event.replace('IF-MIB::link','')
-
-                text_main = for_html_trap_list([trap])
-                text_title = for_html_title([trap])
-                send_mail(text_title, MAIL_TO, text_main)
-                logging.info(text_title)
+                    if not trap.is_blocked(session):
+                        if trap.is_flapping(session):
+                            trap.block(session)
+                            trap.event = 'Flapping'
+                        traps.append(trap)
+                    else:
+                        if len(traps_raw) != 1:
+                            trap.event = 'Still Flapping'
+                            traps.append(trap)
+            text_main = for_html_trap_list(traps)
+            text_title = for_html_title(traps)
+            send_mail(text_title, MAIL_TO, text_main)
+            logging.info(text_title)
     else:
         logging.info("I don't know how to deal with it:\n\n"+raw)
