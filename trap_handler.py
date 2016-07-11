@@ -15,8 +15,33 @@ from functions import for_html_trap_list, for_html_title
 logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.INFO, filename = u'/var/log/trap_handler.log')
 formatter = logging.Formatter('%(asctime)s - %(message)s')
 
+trap_up = """UDP: [192.168.168.222]:59010->[85.112.112.25]:162
+UDP: [192.168.168.222]:59010->[85.112.112.25]:162
+DISMAN-EVENT-MIB::sysUpTimeInstance 5:19:57:42.82
+SNMPv2-MIB::snmpTrapOID.0 IF-MIB::linkUp
+IF-MIB::ifIndex[544] 544
+IF-MIB::ifAdminStatus[544] 1
+IF-MIB::ifOperStatus[544] 1
+IF-MIB::ifName[544] ge-0/0/21"""
+
+trap_down = """UDP: [192.168.168.222]:59010->[85.112.112.25]:162
+UDP: [192.168.168.222]:59010->[85.112.112.25]:162
+DISMAN-EVENT-MIB::sysUpTimeInstance 5:19:57:42.82
+SNMPv2-MIB::snmpTrapOID.0 IF-MIB::linkDown
+IF-MIB::ifIndex[544] 544
+IF-MIB::ifAdminStatus[544] 1
+IF-MIB::ifOperStatus[544] 0
+IF-MIB::ifName[544] ge-0/0/21"""
+
 if __name__ == "__main__":
-    raw = sys.stdin.read()
+    argv = sys.argv
+    if len(argv) > 1:
+        if argv[-1] == 'up':
+            raw = trap_up
+        if argv[-1] == 'down':
+            raw = trap_down
+    else:
+        raw = sys.stdin.read()
     processor = Processor()
     trap = processor.work(raw)
     if trap is not None:
