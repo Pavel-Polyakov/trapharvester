@@ -1,29 +1,12 @@
-# README #
+# TrapHarvester #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+### What is it? ###
 
-### What is this repository for? ###
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* The system for handle SNMP-traps and sending combined notifications.
+* Version 0.3
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+1 Download and install snmptrapd
+2 Edit config.py for your mysql database settings
+3 Add the next row in /etc/snmp/snmptrapd.conf: "traphandle default ${PATH}/trap_handler.sh"
