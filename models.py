@@ -74,30 +74,18 @@ class Port(BasePort):
                     ifalias = self.ifAlias)
     
     def for_html(self):
-	if self.event in ['Up', 'Stopped Flapping']:
-            mood = 'Ok'
-        elif self.event in ['Down', 'Flapping', 'Still Flapping']:
-            mood = 'Problem'
-        else:
-            mood = 'Neutral'
-        return mail_template_trap.format(time=self.time,
-                                        hostname=self.hostname if self.hostname is not None else self.host,
-                                        name=self.ifName,
-                                        # ifindex=self.ifIndex,
-					opermood='ok' if 'up' in self.ifOperStatus else 'problem',
-                                        description=self.ifAlias if self.ifAlias is not None else 'NO DESCRIPTION',
-                                        event=self.event,
-                                        mood=mood.upper())
-
-    def for_mail(self):
-        template = "{mood}: {hostname} {ifname} ({ifalias}) {event}"
-        text = template.format(mood = mood,
-                    hostname = self.host if self.hostname is None else self.hostname,
-                    ifname = self.ifName,
-                    ifalias = self.ifAlias,
-                    event = self.event.replace('IF-MIB::',''))
-        return text
-
+        if self.event in ['Up', 'Stopped Flapping']:
+                mood = 'Ok'
+            elif self.event in ['Down', 'Flapping', 'Still Flapping']:
+                mood = 'Problem'
+            else:
+                mood = 'Neutral'
+            return mail_template_trap.format(time=self.time,
+                                            hostname=self.hostname if self.hostname is not None else self.host,
+                                            name=self.ifName,
+                                            description=self.ifAlias if self.ifAlias is not None else 'NO DESCRIPTION',
+                                            event=self.event,
+                                            mood=mood)
 
 class BlackPort(BasePort):
     __tablename__ = "blacklist"

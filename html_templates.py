@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 mail_template_trap = u"""
-    <li> <b>{name} ({description})</b> <white> | </white> {time} <white> | </white><span class="label label-{mood}">{event}</span></li>"""
-mail_template_list = u"""<h3>{hostname} ({host})</h3>
-                        <ul>{traps}</ul>"""
+<li><b>{name} ({description})</b><white> | </white>{time}<white> | </white><span class="label label-{mood}">{event}</span></li>
+"""
+mail_template_list = u"""
+<h3>{hostname} ({host})</h3>
+<ul>
+    {traps}
+</ul>
+"""
 
-mail_template_full = u"""<!DOCTYPE html>
+mail_template_full = u"""
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -17,7 +23,8 @@ mail_template_full = u"""<!DOCTYPE html>
     {text_list}
     </div>
   </body>
-</html>"""
+</html>
+"""
 
 mail_template_style = u"""
 body {
@@ -72,11 +79,6 @@ h3 {
     font-size: 85%;
 }"""
 
-mail_template_trap_old = u"""
-<span class="label label-{mood}">{event}</span><white> | </white>
-<span class="label label-primary2">{hostname}</span><white> : </white>
-<span class="label label-primary">{port} ({description})</span><white> | </white>
-<span class="label label-{opermood}">{time}</span>"""
 mail_template_trap_image = u"""
 <table><tbody>
 <tr><td>
