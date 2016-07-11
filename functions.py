@@ -5,6 +5,7 @@ __version__ = "0.3"
 from subprocess import check_output, CalledProcessError
 import re
 
+from html_templates import mail_template_trap, mail_template_full, mail_template_style, mail_template_list
 from config import SNMP_COMMUNITY
 
 def getSnmp(host,oid):
@@ -35,3 +36,25 @@ def parseTrap(data):
     res['server'] = server
     return res
 
+def for_html_trap_list(traps):
+    if len(traps) > 0:
+        text_list = ''
+        hosts = set([(x.host,x.hostname) for x in traps])
+        for host in hosts:
+            ports = [x.for_html() for x in traps if x.host == host[0]]
+            text_ports = ''.join(ports)
+            text_list += mail_template_list.format(host=host[0],hostname=host[1],traps=text_ports)
+        return mail_template_full.format(text_list=text_list,style=mail_template_style)
+
+def for_html_title(traps):
+    if len(traps) > 1:
+        return 'trap_handler. '+', '.join([x.hostname if x.hostname else x.host for x in traps])
+    if len(traps) == 1:
+        trap = traps[0]
+        return 'trap_handler. {host}: {port} ({alias}) {event}'.format(
+                        host=trap.hostname if trap.hostname else trap.host,
+                        port=trap.ifName,
+                        alias=trap.ifAlias if trap.ifAlias else 'NO DESCRIPTION',
+                        event=trap.event)
+    else:
+        return 'trap_handler. SOMETHING'
