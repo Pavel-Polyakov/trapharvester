@@ -27,18 +27,16 @@ if __name__ == "__main__":
         # ignore subinterfaces
         if '.' not in trap.ifName:
             if not trap.is_blocked(session):
+
                 if trap.is_flapping(session):
                     trap.block(session)
                     trap.event = 'Flapping'
-                    text_main = for_html_trap_list([trap])
-                    text_title = for_html_title([trap])
-                    send_mail(text_title, MAIL_TO, text_main)
-                    logging.info(text_title)
                 else:
                     trap.event = trap.event.replace('IF-MIB::link','')
-                    text_main = for_html_trap_list([trap])
-                    text_title = for_html_title([trap])
-                    send_mail(text_title, MAIL_TO, text_main)
-                    logging.info(text_title)
+
+                text_main = for_html_trap_list([trap])
+                text_title = for_html_title([trap])
+                send_mail(text_title, MAIL_TO, text_main)
+                logging.info(text_title)
     else:
         logging.info("I don't know how to deal with it:\n\n"+raw)
