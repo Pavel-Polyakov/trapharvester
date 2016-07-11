@@ -76,16 +76,16 @@ class Port(BasePort):
     def for_html(self):
         if self.event in ['Up', 'Stopped Flapping']:
                 mood = 'Ok'
-            elif self.event in ['Down', 'Flapping', 'Still Flapping']:
-                mood = 'Problem'
-            else:
-                mood = 'Neutral'
-            return mail_template_trap.format(time=self.time,
-                                            hostname=self.hostname if self.hostname is not None else self.host,
-                                            name=self.ifName,
-                                            description=self.ifAlias if self.ifAlias is not None else 'NO DESCRIPTION',
-                                            event=self.event,
-                                            mood=mood)
+        elif self.event in ['Down', 'Flapping', 'Still Flapping']:
+            mood = 'Problem'
+        else:
+            mood = 'Neutral'
+        return mail_template_trap.format(time=self.time,
+                                        hostname=self.hostname if self.hostname is not None else self.host,
+                                        name=self.ifName,
+                                        description=self.ifAlias if self.ifAlias is not None else 'NO DESCRIPTION',
+                                        event=self.event,
+                                        mood=mood)
 
 class BlackPort(BasePort):
     __tablename__ = "blacklist"
