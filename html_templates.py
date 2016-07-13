@@ -2,6 +2,9 @@
 mail_template_trap = u"""
 <li><b>{name} ({description})</b><white> | </white>{time}<white> | </white><span class="label label-{mood}">{event}</span></li>
 """
+mail_template_trap_flap = u"""
+<li><b>{name} ({description})</b><white> | </white>{time}<white> | </white><span class="label label-{mood}">{event}</span>FLAP!!!</li>
+"""
 mail_template_list = u"""
 <h3>{hostname} ({host})</h3>
 <ul>

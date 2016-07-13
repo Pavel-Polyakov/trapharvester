@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from config import DB_URL, FLAP_THR_MINUTES, FLAP_THR_COUNT
 
 from html_templates import mail_template_trap, mail_template_full, mail_template_style
+from sqlalchemy.orm.session import Session
 
 def connect_db(db_url=DB_URL, do_echo=False):
     engine = create_engine(db_url, echo=do_echo)
@@ -30,42 +31,45 @@ class BasePort(Base):
     time = Column(DateTime(timezone=True), default=func.now())
     host = Column(String(255))
     ifIndex = Column(String(255))
+    
+    def _get_session(self):
+        return Session.object_session(self)
 
-    def is_blocked(self, session):
-        b = session.query(BlackPort).\
+    def is_blocked(self):
+        b = self._get_session().query(BlackPort).\
                     filter(BlackPort.host == self.host).\
                     filter(BlackPort.ifIndex == self.ifIndex).first()
         return bool(b)
 
-    def is_flapping(self, session):
+    def is_flapping(self):
         minutes = FLAP_THR_MINUTES
         threshold = FLAP_THR_COUNT
-        count = session.query(Port).\
+        count = self._get_session().query(Port).\
                     filter(Port.host == self.host).\
                     filter(Port.ifIndex == self.ifIndex).\
                     filter(Port.time > datetime.now() - timedelta(minutes=minutes)).count()
         return count > threshold
 
-    def block(self, session):
+    def block(self):
         b = BlackPort(host = self.host, ifIndex = self.ifIndex)
-        session.add(b)
-        session.commit()
+        self._get_session().add(b)
+        self._get_session().commit()
 
-    def unblock(self, session):
-        session.query(BlackPort).\
+    def unblock(self):
+        self._get_session().query(BlackPort).\
                     filter(BlackPort.host == self.host).\
                     filter(BlackPort.ifIndex == self.ifIndex).delete()
         session.commit()
 
-    def is_last(self, session):
-        traps = self.getcircuit(session)
+    def is_last(self):
+        traps = self.getcircuit()
         if len(traps) == 1:
             return True
         else:
             return bool(self is traps[-1])
         
-    def getcircuit(self, session):
-        traps = session.query(Port).\
+    def getcircuit(self):
+        traps = self._get_session().query(Port).\
                     filter(Port.host == self.host).\
                     filter(Port.time > self.time - timedelta(seconds=12)).all()
         return traps

@@ -18,17 +18,10 @@ if __name__ == "__main__":
                 order_by(Port.id.desc()).first() for x in blackports]
 
     if len(ports) > 0:
-        whitelist = [x for x in ports if not x.is_flapping(s)]
+        whitelist = [x for x in ports if not x.is_flapping()]
         blacklist = [x for x in ports if x not in whitelist]
-
         for p in whitelist:
             p.unblock(s)
-
-        for p in whitelist:
-            p.event = 'Stopped Flapping'
-        for p in blacklist:
-            p.event = 'Still Flapping'
-
         text_main = for_html_trap_list(whitelist+blacklist)
         text_title = for_html_title(whitelist+blacklist)
         send_mail(text_title, MAIL_TO, text_main)

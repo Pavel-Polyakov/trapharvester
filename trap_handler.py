@@ -46,31 +46,30 @@ if __name__ == "__main__":
 
     processor = Processor()
     trap = processor.work(raw)
-    if trap is not None:
+
+    if trap is None:
+        logging.info("I don't know how to deal with it:\n\n"+raw)
+    else:
         logging.info(trap)
         session, e = connect_db()
         session.add(trap)
         session.commit()
         time.sleep(10)
-        if trap.is_last(session):
-            traps_raw = trap.getcircuit(session)
+
+        if trap.is_flapping() and not trap.is_blocked():
+            trap.block()
+
+        # notification
+        if trap.is_last():
+            traps_raw = trap.getcircuit()
             traps = []
             for trap in traps_raw:
                 # ignore subinterfaces
                 if '.' not in trap.ifName:
-                    trap.event = trap.event.replace('IF-MIB::link','')
-                    if not trap.is_blocked(session):
-                        if trap.is_flapping(session):
-                            trap.block(session)
-                            trap.event = 'Flapping'
+                    if not trap.is_blocked() or len(traps_raw) != 1:
                         traps.append(trap)
-                    else:
-                        if len(traps_raw) != 1:
-                            trap.event = 'Still Flapping'
-                            traps.append(trap)
+            
             text_main = for_html_trap_list(traps)
             text_title = for_html_title(traps)
             send_mail(text_title, MAIL_TO, text_main)
             logging.info(text_title)
-    else:
-        logging.info("I don't know how to deal with it:\n\n"+raw)
