@@ -19,9 +19,8 @@ if __name__ == "__main__":
 
     if len(ports) > 0:
         whitelist = [x for x in ports if not x.is_flapping()]
-        blacklist = [x for x in ports if x not in whitelist]
         for p in whitelist:
-            p.unblock(s)
-        text_main = for_html_trap_list(whitelist+blacklist)
-        text_title = for_html_title(whitelist+blacklist)
+            p.unblock()
+        text_main = for_html_trap_list(ports)
+        text_title = for_html_title(ports)
         send_mail(text_title, MAIL_TO, text_main)

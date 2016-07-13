@@ -47,7 +47,23 @@ def for_html_trap_list(traps):
         return mail_template_full.format(text_list=text_list,style=mail_template_style)
 
 def for_html_title(traps):
+    if len(set([(x.ifName,x.host) for x in traps])) == 1:
+        trap = traps[0]
+        if trap.is_flapping() or len(traps) > 1:
+            event = 'Flapping'
+        else:
+            event = trap.event.replace('IF-MIB::link','')
+        host = trap.hostname if trap.hostname else trap.host
+        description = trap.ifAlias if trap.ifAlias else 'NO DESCRIPTION'
+        return 'Harvey. {host}: {port} ({description}) {event}'.format(
+                                                                    host=host,
+                                                                    port=trap.ifName,
+                                                                    description=description,
+                                                                    event=event)
     if len(traps) > 1:
+        for trap in traps:
+            trap.event = trap.event.replace('IF-MIB::link','')
+        
         text_hosts = []
         hosts = set([(x.host,x.hostname) for x in traps])
         for host in hosts:
@@ -64,13 +80,5 @@ def for_html_title(traps):
             events_text = ', '.join(events_pre)
             
             text_hosts.append("{host} ({events})".format(host=host_text,events=events_text))
-        return 'trap_handler. '+', '.join(text_hosts)
-    if len(traps) == 1:
-        trap = traps[0]
-        return 'trap_handler. {host}: {port} ({alias}) {event}'.format(
-                        host=trap.hostname if trap.hostname else trap.host,
-                        port=trap.ifName,
-                        alias=trap.ifAlias if trap.ifAlias else 'NO DESCRIPTION',
-                        event=trap.event)
-    else:
-        return 'trap_handler. Something went wrong'
+        return 'Harvey. '+', '.join(text_hosts)
+

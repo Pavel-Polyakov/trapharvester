@@ -10,7 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timedelta
 from config import DB_URL, FLAP_THR_MINUTES, FLAP_THR_COUNT
 
-from html_templates import mail_template_trap, mail_template_full, mail_template_style
+from html_templates import mail_template_trap, mail_template_full, mail_template_style, mail_template_trap_flap
 from sqlalchemy.orm.session import Session
 
 def connect_db(db_url=DB_URL, do_echo=False):
@@ -47,7 +47,8 @@ class BasePort(Base):
         count = self._get_session().query(Port).\
                     filter(Port.host == self.host).\
                     filter(Port.ifIndex == self.ifIndex).\
-                    filter(Port.time > datetime.now() - timedelta(minutes=minutes)).count()
+                    filter(Port.time > self.time - timedelta(minutes=minutes)).count()
+                    # filter(Port.time > datetime.now() - timedelta(minutes=minutes)).count()
         return count > threshold
 
     def block(self):
@@ -59,7 +60,7 @@ class BasePort(Base):
         self._get_session().query(BlackPort).\
                     filter(BlackPort.host == self.host).\
                     filter(BlackPort.ifIndex == self.ifIndex).delete()
-        session.commit()
+        self._get_session().commit()
 
     def is_last(self):
         traps = self.getcircuit()
@@ -91,17 +92,27 @@ class Port(BasePort):
                     ifalias = self.ifAlias)
 
     def for_html(self):
-        if self.event in ['Up', 'Stopped Flapping']:
+        event = self.event.replace('IF-MIB::link','')
+        if 'Up' in event:
             mood = 'Ok'
-        elif self.event in ['Down', 'Flapping', 'Still Flapping']:
+        elif 'Down' in event:
             mood = 'Problem'
         else:
             mood = 'Neutral'
-        return mail_template_trap.format(time=self.time,
-                                        hostname=self.hostname if self.hostname is not None else self.host,
+
+        host = self.hostname if self.hostname is not None else self.host
+        description = self.ifAlias if self.ifAlias is not None else 'NO DESCRIPTION'
+
+        if self.is_flapping():
+            template = mail_template_trap_flap
+        else:
+            template = mail_template_trap
+        
+        return template.format(time=self.time,
+                                        hostname=host,
                                         name=self.ifName,
-                                        description=self.ifAlias if self.ifAlias is not None else 'NO DESCRIPTION',
-                                        event=self.event,
+                                        description=description,
+                                        event=event,
                                         mood=mood)
 
 class BlackPort(BasePort):
