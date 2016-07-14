@@ -18,7 +18,7 @@ if __name__ == "__main__":
                 order_by(Port.id.desc()).first() for x in blackports]
 
     if len(ports) > 0:
-        whitelist = [x for x in ports if not x.is_flapping()]
+        whitelist = [x for x in ports if not x.is_flapping_now()]
         for p in whitelist:
             p.unblock()
         text_main = for_html_trap_list(ports)

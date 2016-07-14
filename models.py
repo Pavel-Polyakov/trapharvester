@@ -47,10 +47,18 @@ class BasePort(Base):
         count = self._get_session().query(Port).\
                     filter(Port.host == self.host).\
                     filter(Port.ifIndex == self.ifIndex).\
-                    filter(Port.time > self.time - timedelta(minutes=minutes)).count()
-                    # filter(Port.time > datetime.now() - timedelta(minutes=minutes)).count()
+                    filter(Port.time > Port.time - timedelta(minutes=minutes)).count()
         return count > threshold
 
+    def is_flapping_now(self):
+        minutes = FLAP_THR_MINUTES
+        threshold = FLAP_THR_COUNT
+        count = self._get_session().query(Port).\
+                    filter(Port.host == self.host).\
+                    filter(Port.ifIndex == self.ifIndex).\
+                    filter(Port.time > datetime.now() - timedelta(minutes=minutes)).count()
+        return count > threshold
+    
     def block(self):
         b = BlackPort(host = self.host, ifIndex = self.ifIndex)
         self._get_session().add(b)
@@ -72,7 +80,7 @@ class BasePort(Base):
     def getcircuit(self):
         traps = self._get_session().query(Port).\
                     filter(Port.host == self.host).\
-                    filter(Port.time > self.time - timedelta(seconds=12)).all()
+                    filter(Port.time > self.time - timedelta(seconds=30)).all()
         return traps
 
 class Port(BasePort):
