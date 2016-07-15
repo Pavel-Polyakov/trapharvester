@@ -99,6 +99,7 @@ class Port(BasePort):
                     ifname = self.ifName,
                     ifalias = self.ifAlias)
 
+
     def for_html(self):
         event = self.event.replace('IF-MIB::link','')
         if 'Up' in event:
@@ -109,7 +110,7 @@ class Port(BasePort):
             mood = 'Neutral'
 
         host = self.hostname if self.hostname is not None else self.host
-        description = self.ifAlias if self.ifAlias is not None else 'NO DESCRIPTION'
+        description = self.ifAlias if self.ifAlias not in (None,'') else 'NO DESCRIPTION'
 
         if self.is_flapping():
             template = mail_template_trap_flap

@@ -64,9 +64,8 @@ if __name__ == "__main__":
                 traps_raw = trap.getcircuit()
                 traps = []
                 for trap in traps_raw:
-                        if not trap.is_blocked() or len(traps_raw) != 1:
-                            traps.append(trap)
-                
+                    if not trap.is_blocked() or len(traps_raw) != 1:
+                        traps.append(trap)
                 text_main = for_html_trap_list(traps)
                 text_title = for_html_title(traps)
                 send_mail(text_title, MAIL_TO, text_main)
