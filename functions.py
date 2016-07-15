@@ -113,6 +113,12 @@ def get_mood(event):
     else:
         return None
 
+def get_additional_or_event(trap):
+    result = get_additional(trap)
+    if result is None:
+	result = trap.event
+    return result
+
 def for_html_title(traps):
     if len(set([(x.ifName,x.host) for x in traps])) == 1:
         trap = traps[0]
@@ -138,18 +144,18 @@ def for_html_title(traps):
         text_hosts = []
         hosts = set([(x.host,x.hostname) for x in traps])
 	
-	additionals = set([get_additional(x) for x in traps])
+	additionals = set([get_additional_or_event(x) for x in traps])
 	if len(additionals) == 1:
 	    return 'Harvey. '+', '.join([x[1] if x[1] else x[0] for x in hosts])+': '+additionals.pop()
         for host in hosts:
             host_text = host[1] if host[1] else host[0]
 
             host_traps = [x for x in traps if x.host == host[0]]
-            host_events = [x.event for x in host_traps]
+            host_events = [get_additional(x) for x in host_traps]
 
             events_pre = []
             for event in set(host_events):
-                count = len([x for x in host_traps if x.event == event])
+                count = len([x for x in host_events if x == event])
                 event_text = "{event}: {count}".format(event=event, count=count)
                 events_pre.append(event_text)
             events_text = ', '.join(events_pre)

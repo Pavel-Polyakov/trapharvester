@@ -80,7 +80,7 @@ class BasePort(Base):
     def getcircuit(self):
         traps = self._get_session().query(Port).\
                     filter(Port.host == self.host).\
-                    filter(Port.time > self.time - timedelta(seconds=30)).all()
+                    filter(Port.time > self.time - timedelta(seconds=10)).all()
         return traps
 
 class Port(BasePort):

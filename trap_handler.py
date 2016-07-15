@@ -56,18 +56,17 @@ if __name__ == "__main__":
         session.commit()
         time.sleep(10)
 
-        if '.' not in trap.ifName:
-            if trap.is_last():
-                traps_raw = trap.getcircuit()
-                traps = []
-                for trap in traps_raw:
-                    if not trap.is_blocked():
-                        traps.append(trap)
-                
-		for trap in traps_raw:
-		    if not trap.is_blocked() and trap.is_flapping():
-			trap.block()
-		text_main = for_html_trap_list(traps)
-                text_title = for_html_title(traps)
-                send_mail(text_title, MAIL_TO, text_main)
-                logging.info(text_title)
+	if trap.is_last():
+	    traps_raw = trap.getcircuit()
+	    traps = []
+	    for trap in traps_raw:
+		if '.' not in trap.ifName:
+		    if not trap.is_blocked():
+			traps.append(trap)
+	    for trap in traps_raw:
+		if not trap.is_blocked() and trap.is_flapping():
+		    trap.block()
+	    text_main = for_html_trap_list(traps)
+	    text_title = for_html_title(traps)
+	    send_mail(text_title, MAIL_TO, text_main)
+	    logging.info(text_title)
