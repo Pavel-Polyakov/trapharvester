@@ -57,16 +57,17 @@ if __name__ == "__main__":
         time.sleep(10)
 
         if '.' not in trap.ifName:
-            if trap.is_flapping() and not trap.is_blocked():
-                trap.block()
-
             if trap.is_last():
                 traps_raw = trap.getcircuit()
                 traps = []
                 for trap in traps_raw:
-                    if not trap.is_blocked() or len(traps_raw) != 1:
+                    if not trap.is_blocked():
                         traps.append(trap)
-                text_main = for_html_trap_list(traps)
+                
+		for trap in traps_raw:
+		    if not trap.is_blocked() and trap.is_flapping():
+			trap.block()
+		text_main = for_html_trap_list(traps)
                 text_title = for_html_title(traps)
                 send_mail(text_title, MAIL_TO, text_main)
                 logging.info(text_title)

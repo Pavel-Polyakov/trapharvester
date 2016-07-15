@@ -21,6 +21,9 @@ if __name__ == "__main__":
         whitelist = [x for x in ports if not x.is_flapping_now()]
         for p in whitelist:
             p.unblock()
+            p.additional = 'Stop Flapping'
+        for p in [x for x in ports if x not in whitelist]:
+            p.additional = 'Still Flapping'
         text_main = for_html_trap_list(ports)
         text_title = for_html_title(ports)
         send_mail(text_title, MAIL_TO, text_main)

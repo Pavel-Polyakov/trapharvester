@@ -1,15 +1,39 @@
 # -*- coding: utf-8 -*-
-mail_template_trap = u"""
-<li><b>{name} ({description})</b><white> | </white>{time}<white> | </white><span class="label label-{mood}">{event}</span></li>
-"""
-mail_template_trap_flap = u"""
-<li><b>{name} ({description})</b><white> | </white>{time}<white> | </white><span class="label label-problem">Flapping</span></li>
-"""
-mail_template_list = u"""
-<h3>{hostname} ({host})</h3>
+template_host = u"""
+<h3>{hostname} ({hostip})</h3>
 <ul>
-    {traps}
+    {ports}
 </ul>
+"""
+
+template_port_still_flapping = u"""
+<li><b>{name} ({description})</b><white> | </white><span class="label label-{mood}">{additional}</span></li>"""
+
+template_port_stop_flapping = u"""
+<li><b>{name} ({description})</b><white> | </white><span class="label label-{mood}">{additional}</span>
+    <ul>
+	<b>Last:</b>{event}
+    </ul>
+</li>"""
+
+template_port_additional = u"""
+<li><b>{name} ({description})</b><white> | </white><span class="label label-{mood}">{additional}</span>
+    <ul>
+        {events}
+    </ul>
+</li>"""
+
+template_port = u"""
+<li><b>{name} ({description})</b>
+    <ul>
+        {events}
+    </ul>
+</li>"""
+
+template_event = u"""
+<li>
+    {time}<white> | </white><span class="label label-{mood}">{event}</span>
+</li>
 """
 
 mail_template_full = u"""
@@ -23,7 +47,7 @@ mail_template_full = u"""
   </style>
   <body>
     <div>
-    {text_list}
+    {text_hosts}
     </div>
   </body>
 </html>
@@ -94,4 +118,3 @@ mail_template_trap_image = u"""
 <img style="display:block;" width="100%" height="100%" src='http://isweethome.ihome.ru/api/?ifindex={ifindex}&flapchart'>
 </td></tr>
 </tbody></table>"""
-
