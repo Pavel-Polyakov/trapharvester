@@ -23,6 +23,13 @@ def connect_db(db_url=DB_URL, do_echo=False):
 Base = declarative_base()
 metadata = Base.metadata
 
+class Task(Base):
+    __tablename__ = 'tasks'
+
+    id = Column(Integer, primary_key=True)
+    trap_id = Column(Integer)
+    host = Column(String(255))
+
 class BasePort(Base):
     __abstract__ = True
 
@@ -72,17 +79,28 @@ class BasePort(Base):
 
     def is_last(self):
         traps = self.getcircuit()
-        if len(traps) == 1:
-            return True
+        if len(traps) > 0:
+            return self.id == traps[-1].id
         else:
-            return bool(self is traps[-1])
+            return False
+
+    def add_task(self):
+        s = self._get_session()
+        s.add(Task(trap_id=self.id,host=self.host))
+        s.commit()
+
+    def del_task(self):
+        s = self._get_session()
+        s.query(Task).filter(Task.trap_id == self.id).delete()        
+        s.commit()
 
     def getcircuit(self):
-        traps = self._get_session().query(Port).\
-                    filter(Port.host == self.host).\
-                    filter(Port.time > self.time - timedelta(seconds=10)).all()
-        return traps
-
+        s = self._get_session()
+        queue = s.query(Task).filter(Task.host==self.host).all()
+        queue_ids = [x.trap_id for x in queue]
+        queue_traps = s.query(Port).filter(Port.id.in_([x for x in queue_ids])).all()
+        return queue_traps
+    
 class Port(BasePort):
     __tablename__ = "ports"
 
