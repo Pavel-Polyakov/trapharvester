@@ -58,17 +58,18 @@ if __name__ == "__main__":
         time.sleep(10)
 
     if trap.is_last():
-        traps_raw = trap.getcircuit()
+	traps_raw = trap.getcircuit()
         traps = []
-        for trap in traps_raw:
+	for trap in traps_raw:
             if '.' not in trap.ifName:
                 if not trap.is_blocked():
                     traps.append(trap)
                 if trap.is_blocked() and len(set([x.ifName for x in traps_raw])) > 1:
                     traps.append(trap)
-                for trap in traps_raw:
-                    if not trap.is_blocked() and trap.is_flapping():
-                        trap.block()
+        for trap in traps_raw:
+            if not trap.is_blocked() and trap.is_flapping():
+                trap.block()
+        for trap in traps_raw:
             trap.del_task()
         text_main = for_html_trap_list(traps)
         text_title = for_html_title(traps)

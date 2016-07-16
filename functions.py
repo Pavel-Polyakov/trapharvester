@@ -84,7 +84,7 @@ def get_additional(trap):
         if trap.is_flapping():
             additional = 'Flapping'
             if trap.is_blocked():
-                additional = 'Blocked'
+                additional = 'Blocked for flapping'
             return additional
 
 def for_html_event(trap):
@@ -103,7 +103,7 @@ def get_mood(event):
             mood = 'Ok'
         elif 'Down' in event:
             mood = 'Problem'
-        elif event in ['Flapping','Still Flapping', 'Blocked']:
+        elif event in ['Flapping','Still Flapping', 'Blocked', 'Blocked for flapping']:
             mood = 'Problem'
         elif event in ['Stop Flapping']:
             mood = 'Ok'
@@ -125,7 +125,7 @@ def for_html_title(traps):
         additional = get_additional(trap)
         if additional is None:
             if len(traps) > 1:
-                event = clean_event(traps[0].event+traps[-1].event)+' ({})'.format(len(traps))
+                event = clean_event(traps[0].event+'-'+traps[-1].event)+' ({})'.format(len(traps))
             else:
                 event = trap.event.replace('IF-MIB::link','')
         else:
