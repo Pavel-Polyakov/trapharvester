@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
 __author__ = "Pavel Polyakov"
 __copyright__ = "Copyright (C) 2016 Pavel Polyakov"
-__version__ = "0.3"
+__version__ = "0.4"
 
 from subprocess import check_output, CalledProcessError
 import re
 
+from collections import Counter
 from html_templates import mail_template_full, mail_template_style, template_host, template_port, template_port_additional, template_event, template_port_still_flapping, template_port_stop_flapping
 from config import SNMP_COMMUNITY
 
@@ -65,10 +67,10 @@ def for_html_port(traps):
         description = trap.ifAlias if trap.ifAlias not in (None,'') else 'NO DESCRIPTION'
         additional = get_additional(trap)
         mood = get_mood(additional)
-	if additional == 'Still Flapping':
-	    return template_port_still_flapping.format(name=name,description=description,mood=mood,additional=additional)
-	elif additional == 'Stop Flapping':
-	    return template_port_stop_flapping.format(name=name,description=description,mood=mood,additional=additional,event=for_html_event(trap))
+        if additional == 'Still Flapping':
+            return template_port_still_flapping.format(name=name,description=description,mood=mood,additional=additional)
+        elif additional == 'Stop Flapping':
+            return template_port_stop_flapping.format(name=name,description=description,mood=mood,additional=additional,event=for_html_event(trap))
         events = ''
         for trap in traps:
             events += for_html_event(trap)
@@ -116,49 +118,134 @@ def get_mood(event):
 def get_additional_or_event(trap):
     result = get_additional(trap)
     if result is None:
-	result = trap.event
+        result = clean_event(trap.event)
     return result
 
 def for_html_title(traps):
+    if len(traps) == 1:
+        """single trap"""
+        return for_html_title_one_trap(traps[0])
     if len(set([(x.ifName,x.host) for x in traps])) == 1:
-        trap = traps[0]
-        additional = get_additional(trap)
-        if additional is None:
-            if len(traps) > 1:
-                event = clean_event(traps[0].event+'-'+traps[-1].event)+' ({})'.format(len(traps))
-            else:
-                event = trap.event.replace('IF-MIB::link','')
+        """single port"""
+        return for_html_title_one_port(traps)
+    if len(set([x.host for x in traps])) == 1:
+        """single host"""
+        return for_html_title_one_host(traps)
+    else:
+        return 'Harvey. TRAPS'
+
+def get_hostname(trap):
+    return trap.hostname if trap.hostname else trap.host
+
+def get_description(trap):
+    return trap.ifAlias if trap.ifAlias else 'NO DESCRIPTION'
+
+def for_html_title_one_trap(trap):
+    template = u'Harvey. {host}: {port} ({description}) {event}'
+
+    host = get_hostname(trap)
+    description = get_description(trap)
+
+    # event variable
+    event = get_additional_or_event(trap)
+    event = translate_one(event)
+
+    return template.format(host=host,
+                           port=trap.ifName,
+                           description=description,
+                           event=event)
+
+def get_event_for_one_port(traps):
+    # event variable
+    additional = get_additional(trap)
+    if additional is not None:
+        event = (additional)
+    else:
+        first = traps[0].event
+        last = traps[-1].event
+        if first == last:
+            event = (first)
         else:
-            event = additional
-        host = trap.hostname if trap.hostname else trap.host
-        description = trap.ifAlias if trap.ifAlias else 'NO DESCRIPTION'
-        return 'Harvey. {host}: {port} ({description}) {event}'.format(
-                                                                    host=host,
-                                                                    port=trap.ifName,
-                                                                    description=description,
-                                                                    event=event)
-    if len(traps) > 1:
-        for trap in traps:
-            trap.event = trap.event.replace('IF-MIB::link','')
+            event = '{} and {}'.format(first,last)
+    return event
 
-        text_hosts = []
-        hosts = set([(x.host,x.hostname) for x in traps])
-	
-	additionals = set([get_additional_or_event(x) for x in traps])
-	if len(additionals) == 1:
-	    return 'Harvey. '+', '.join([x[1] if x[1] else x[0] for x in hosts])+': '+additionals.pop()
-        for host in hosts:
-            host_text = host[1] if host[1] else host[0]
+def for_html_title_one_port(traps):
+    template = u'Harvey. {host}: {port} ({description}) {event}'
+    trap = traps[0]
+    host = get_hostname(trap)
+    description = get_description(trap)
+    event = get_event_for_one_port(traps)
+    return template.format(host=host,
+                           port=trap.ifName,
+                           description=description,
+                           event=event)
 
-            host_traps = [x for x in traps if x.host == host[0]]
-            host_events = [get_additional(x) for x in host_traps]
+def for_html_title_one_host(traps):
+    template = u'Harvey. {host}: {events}'
+    template_event = u'{count} {noun} - {event}'
+    trap = traps[0]
 
-            events_pre = []
-            for event in set(host_events):
-                count = len([x for x in host_events if x == event])
-                event_text = "{event}: {count}".format(event=event, count=count)
-                events_pre.append(event_text)
-            events_text = ', '.join(events_pre)
+    host = get_hostname(trap)
+    description = get_description(trap)
 
-            text_hosts.append("{host} ({events})".format(host=host_text,events=events_text))
-        return 'Harvey. '+', '.join(text_hosts)
+    # events
+    events_list = []
+    ports = set([x.ifName for x in traps])
+    for port in ports:
+        port_traps = [x for x in traps if x.ifName == port]
+        port_event = get_event_for_one_port(port_traps)
+        events_list.append(port_event)
+
+    events_count = Counter(events_list)
+    events = []
+    for event in events_count:
+        count = events_count[event]
+        if count == 1:
+            events.append(template_event.format(count=u'1',
+                                                noun=u'порт',
+                                                event=translate_one(event)))
+        else:
+            events.append(template_event.format(count=str(count),
+                                                noun=translate_ports(count),
+                                                event=translate_many(event)))
+    events_text = ', '.join(events)
+    return template.format(host=host,
+                           port=trap.ifName,
+                           description=description,
+                           event=events_text)
+
+def translate_ports(count):
+    variants = {
+        '0': u'портов',
+        '1': u'порт',
+        '2': u'порта',
+        '3': u'порта',
+        '4': u'порта',
+        '5': u'портов',
+        '6': u'портов',
+        '7': u'портов',
+        '8': u'портов',
+        '9': u'портов',
+    }
+    w = str(count)[-1]
+    return variants.get(w, 'порт')
+
+def translate_one(event):
+    variants = {
+        'Still Flapping': u'Всё ещё флапает',
+        'Stop Flapping': u'Прекратил флапать',
+        'Blocked for Flapping': u'Заблокирован из-за флапов',
+        'Down': u'Упал',
+        'Up': u'Поднялся',
+    }
+    return variants.get(event, event)
+
+def translate_many(event):
+    variants = {
+        'Still Flapping': u'Всё ещё флапают',
+        'Stop Flapping': u'Прекратили флапать',
+        'Blocked for Flapping': u'Заблокированы из-за флапов',
+        'Down': u'Упали',
+        'Up': u'Поднялись',
+    }
+    return variants.get(event, event)
