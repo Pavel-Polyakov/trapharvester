@@ -182,7 +182,7 @@ def for_html_title_one_port(traps):
 
 def for_html_title_one_host(traps):
     template = u'Harvey. {host}: {events}'
-    template_event = u'{count} {noun} - {event}'
+    template_event = u'{count} {noun} {event}'
     trap = traps[0]
 
     host = get_hostname(trap)
@@ -203,16 +203,16 @@ def for_html_title_one_host(traps):
         if count == 1:
             events.append(template_event.format(count=u'1',
                                                 noun=u'порт',
-                                                event=translate_one(event)))
+                                                event=translate_one(event)).lower())
         else:
             events.append(template_event.format(count=str(count),
                                                 noun=translate_ports(count),
-                                                event=translate_many(event)))
+                                                event=translate_many(event)).lower())
     events_text = ', '.join(events)
     return template.format(host=host,
                            port=trap.ifName,
                            description=description,
-                           event=events_text)
+                           events=events_text)
 
 def translate_ports(count):
     variants = {
