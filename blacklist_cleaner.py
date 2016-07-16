@@ -30,7 +30,7 @@ if __name__ == "__main__":
             for p in ports:
                 cir = p.getcircuit()
                 for c in cir:
-                    c.del_task()
+                    c.del_from_queue()
             text_main = for_html_trap_list(ports)
             text_title = for_html_title(ports)
             send_mail(text_title, MAIL_TO, text_main)

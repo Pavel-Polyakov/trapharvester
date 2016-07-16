@@ -115,11 +115,6 @@ def get_mood(event):
     else:
         return None
 
-def get_additional_or_event(trap):
-    result = get_additional(trap)
-    if result is None:
-        result = clean_event(trap.event)
-    return result
 
 def for_html_title(traps):
     if len(traps) == 1:
@@ -147,7 +142,7 @@ def for_html_title_one_trap(trap):
     description = get_description(trap)
 
     # event variable
-    event = get_additional_or_event(trap)
+    event = get_event_for_one_port([trap])
     event = translate_one(event)
 
     return template.format(host=host,
@@ -157,12 +152,16 @@ def for_html_title_one_trap(trap):
 
 def get_event_for_one_port(traps):
     # event variable
+    trap = traps[0]
     additional = get_additional(trap)
-    if additional is not None:
-        event = (additional)
+    if additional == 'Stop Flapping':
+        last_event = traps[-1].event
+        event = '{} and {}'.format(additional,clean_event(traps[-1].event))
+    elif additional is not None:
+        event = additional
     else:
-        first = traps[0].event
-        last = traps[-1].event
+        first = clean_event(traps[0].event)
+        last = clean_event(traps[-1].event)
         if first == last:
             event = (first)
         else:
@@ -175,6 +174,7 @@ def for_html_title_one_port(traps):
     host = get_hostname(trap)
     description = get_description(trap)
     event = get_event_for_one_port(traps)
+    event = translate_one(event)
     return template.format(host=host,
                            port=trap.ifName,
                            description=description,
@@ -232,20 +232,28 @@ def translate_ports(count):
 
 def translate_one(event):
     variants = {
-        'Still Flapping': u'Всё ещё флапает',
-        'Stop Flapping': u'Прекратил флапать',
-        'Blocked for Flapping': u'Заблокирован из-за флапов',
-        'Down': u'Упал',
-        'Up': u'Поднялся',
+        'still flapping': u'Всё ещё флапает',
+        'stop flapping': u'Прекратил флапать',
+        'stop flapping and down': u'Прекратил флапать и лежит',
+        'stop flapping and up': u'Прекратил флапать и поднят',
+        'blocked for flapping': u'Заблокирован из-за флапов',
+        'down': u'Упал',
+        'up': u'Поднялся',
+        'down and up': u'Упал и Поднялся',
+        'up and down': u'Поднялся и Упал',
     }
-    return variants.get(event, event)
+    return variants.get(event.lower(), event)
 
 def translate_many(event):
     variants = {
-        'Still Flapping': u'Всё ещё флапают',
-        'Stop Flapping': u'Прекратили флапать',
-        'Blocked for Flapping': u'Заблокированы из-за флапов',
-        'Down': u'Упали',
-        'Up': u'Поднялись',
+        'still flapping': u'Всё ещё флапают',
+        'stop flapping': u'Прекратили флапать',
+        'stop flapping and down': u'Прекратили флапать и лежат',
+        'stop flapping and up': u'Прекратили флапать и подняты',
+        'blocked for flapping': u'Заблокированы из-за флапов',
+        'down': u'Упали',
+        'up': u'Поднялись',
+        'down and up': u'Упали и Поднялись',
+        'up and down': u'Поднялись и Упали',
     }
-    return variants.get(event, event)
+    return variants.get(event.lower(), event)

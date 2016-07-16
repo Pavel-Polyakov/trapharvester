@@ -51,7 +51,9 @@ if __name__ == "__main__":
         logging.info("I don't know how to deal with it:\n\n"+raw)
     else:
         logging.info(trap)
-        trap.save()
+        s,e = connect_db()
+        s.add(trap)
+        s.commit()
         trap.add_to_queue()
 
         time.sleep(10)
