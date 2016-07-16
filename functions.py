@@ -234,8 +234,8 @@ def translate_one(event):
     variants = {
         'still flapping': u'Всё ещё флапает',
         'stop flapping': u'Прекратил флапать',
-        'stop flapping and down': u'Прекратил флапать и лежит',
-        'stop flapping and up': u'Прекратил флапать и поднят',
+        'stop flapping and down': u'Прекратил флапать и сейчас лежит',
+        'stop flapping and up': u'Прекратил флапать и сейчас поднят',
         'blocked for flapping': u'Заблокирован из-за флапов',
         'down': u'Упал',
         'up': u'Поднялся',
@@ -248,8 +248,8 @@ def translate_many(event):
     variants = {
         'still flapping': u'Всё ещё флапают',
         'stop flapping': u'Прекратили флапать',
-        'stop flapping and down': u'Прекратили флапать и лежат',
-        'stop flapping and up': u'Прекратили флапать и подняты',
+        'stop flapping and down': u'Прекратили флапать и сейчас лежат',
+        'stop flapping and up': u'Прекратили флапать и сейчас подняты',
         'blocked for flapping': u'Заблокированы из-за флапов',
         'down': u'Упали',
         'up': u'Поднялись',
