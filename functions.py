@@ -64,7 +64,11 @@ def for_html_port(traps):
     if len(traps) > 0:
         trap = traps[-1]
         name = trap.ifName
-        description = trap.ifAlias if trap.ifAlias not in (None,'') else 'NO DESCRIPTION'
+        description = get_description(trap)
+        if description == 'None':
+            description = ''
+        else:
+            description = '({})'.format(description)
         additional = get_additional(trap)
         mood = get_mood(additional)
         if additional == 'Still Flapping':
@@ -133,18 +137,23 @@ def get_hostname(trap):
     return trap.hostname if trap.hostname else trap.host
 
 def get_description(trap):
-    return trap.ifAlias if trap.ifAlias else 'NO DESCRIPTION'
+    return trap.ifAlias if trap.ifAlias not in (None,'') else 'None'
 
 def for_html_title_one_trap(trap):
-    template = u'Harvey. {host}: {port} ({description}) {event}'
+    template_description = u'Harvey. {host}: {port} ({description}) {event}'
+    template_none = u'Harvey. {host}: {port} {event}'
 
     host = get_hostname(trap)
     description = get_description(trap)
-
     # event variable
     event = get_event_for_one_port([trap])
     event = translate_one(event)
 
+    if description == 'None':
+        template = template_none
+    else:
+        template = template_description
+    
     return template.format(host=host,
                            port=trap.ifName,
                            description=description,
@@ -169,12 +178,20 @@ def get_event_for_one_port(traps):
     return event
 
 def for_html_title_one_port(traps):
-    template = u'Harvey. {host}: {port} ({description}) {event}'
+    template_description = u'Harvey. {host}: {port} ({description}) {event}'
+    template_none = u'Harvey. {host}: {port} {event}'
+    
     trap = traps[0]
     host = get_hostname(trap)
     description = get_description(trap)
     event = get_event_for_one_port(traps)
     event = translate_one(event)
+    
+    if description == 'None':
+        template = template_none
+    else:
+        template = template_description
+    
     return template.format(host=host,
                            port=trap.ifName,
                            description=description,
@@ -234,8 +251,8 @@ def translate_one(event):
     variants = {
         'still flapping': u'Всё ещё флапает',
         'stop flapping': u'Прекратил флапать',
-        'stop flapping and down': u'Прекратил флапать и сейчас лежит',
-        'stop flapping and up': u'Прекратил флапать и сейчас поднят',
+        'stop flapping and down': u'Прекратил флапать и лежит',
+        'stop flapping and up': u'Прекратил флапать и поднят',
         'blocked for flapping': u'Заблокирован из-за флапов',
         'down': u'Упал',
         'up': u'Поднялся',
@@ -248,8 +265,8 @@ def translate_many(event):
     variants = {
         'still flapping': u'Всё ещё флапают',
         'stop flapping': u'Прекратили флапать',
-        'stop flapping and down': u'Прекратили флапать и сейчас лежат',
-        'stop flapping and up': u'Прекратили флапать и сейчас подняты',
+        'stop flapping and down': u'Прекратили флапать и лежат',
+        'stop flapping and up': u'Прекратили флапать и подняты',
         'blocked for flapping': u'Заблокированы из-за флапов',
         'down': u'Упали',
         'up': u'Поднялись',

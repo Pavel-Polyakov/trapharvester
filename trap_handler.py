@@ -51,22 +51,21 @@ if __name__ == "__main__":
         logging.info("I don't know how to deal with it:\n\n"+raw)
     else:
         logging.info(trap)
-        s,e = connect_db()
+	s,e = connect_db()
         s.add(trap)
         s.commit()
         trap.add_to_queue()
-
-        time.sleep(10)
+	logging.info(raw)
+        time.sleep(30)
 
         if trap.is_last():
             traps_raw = trap.getcircuit()
             traps_for_notification = []
             for trap in traps_raw:
-                if '.' not in trap.ifName:
-                    if not trap.is_blocked():
-                        traps_for_notification.append(trap)
-                    if trap.is_blocked() and len(set([x.ifName for x in traps_raw])) > 1:
-                        traps_for_notification.append(trap)
+		if trap.ifName is not None:
+		    if '.' not in trap.ifName:
+			if not trap.is_blocked():
+			    traps_for_notification.append(trap)
 
             for trap in traps_raw:
                 if not trap.is_blocked() and trap.is_flapping():

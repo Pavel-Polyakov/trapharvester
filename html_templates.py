@@ -7,24 +7,24 @@ template_host = u"""
 """
 
 template_port_still_flapping = u"""
-<li><b>{name} ({description})</b><white> | </white><span class="label label-{mood}">{additional}</span></li>"""
+<li><b>{name} {description}</b><white> | </white><span class="label label-{mood}">{additional}</span></li>"""
 
 template_port_stop_flapping = u"""
-<li><b>{name} ({description})</b><white> | </white><span class="label label-{mood}">{additional}</span>
+<li><b>{name} {description}</b><white> | </white><span class="label label-{mood}">{additional}</span>
     <ul>
 	<b>Last:</b>{event}
     </ul>
 </li>"""
 
 template_port_additional = u"""
-<li><b>{name} ({description})</b><white> | </white><span class="label label-{mood}">{additional}</span>
+<li><b>{name} {description}</b><white> | </white><span class="label label-{mood}">{additional}</span>
     <ul>
         {events}
     </ul>
 </li>"""
 
 template_port = u"""
-<li><b>{name} ({description})</b>
+<li><b>{name} {description}</b>
     <ul>
         {events}
     </ul>
