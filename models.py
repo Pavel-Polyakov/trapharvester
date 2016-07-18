@@ -2,7 +2,7 @@ __author__ = "Pavel Polyakov"
 __copyright__ = "Copyright (C) 2016 Pavel Polyakov"
 __version__ = "0.4"
 
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -87,7 +87,7 @@ class Port(BasePort):
         return count > threshold
 
     def block(self):
-        b = BlackPort(host = self.host, ifIndex = self.ifIndex)
+        b = BlackPort(host = self.host, ifIndex = self.ifIndex, added='auto')
         self._get_session().add(b)
         self._get_session().commit()
 
@@ -123,6 +123,8 @@ class Port(BasePort):
 
 class BlackPort(BasePort):
     __tablename__ = "blacklist"
+
+    added = Column(Enum('auto','manual'))
 
     def __repr__(self):
         template = "BlackPort. {host}: {ifindex}"

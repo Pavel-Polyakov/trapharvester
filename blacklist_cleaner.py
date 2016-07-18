@@ -11,7 +11,7 @@ from functions import for_html_trap_list, for_html_title
 
 if __name__ == "__main__":
     s,e = connect_db()
-    blackports = s.query(BlackPort).all()
+    blackports = s.query(BlackPort).filter(BlackPort.added == 'auto').all()
     ports_raw = [s.query(Port).\
                 filter(Port.host == x.host).\
                 filter(Port.ifIndex == x.ifIndex).\
