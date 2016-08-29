@@ -17,6 +17,12 @@ class Processor(object):
         else:
             return None
 
+def find_state(message):
+    try:
+        return re.search('(up|down)',message,re.IGNORECASE).group().lower()
+    except AttributeError:
+        return None
+
 class PortProcessor(object):
     """Trap example:
     UDP: [192.168.168.222]:59010->[85.112.112.25]:162
@@ -35,10 +41,13 @@ class PortProcessor(object):
         ifIndex = trap.get('ifIndex')
         ifName = trap.get('ifName', getSnmp(host,'IF-MIB::ifName.'+ifIndex))
         ifAlias = trap.get('ifAlias', getSnmp(host,'IF-MIB::ifAlias.'+ifIndex))
+        
         ifAdminStatus = trap.get('ifAdminStatus', getSnmp(host,'IF-MIB::ifAdminStatus.'+ifIndex))
+        ifAdminStatus = find_state(ifAdminStatus)
         ifOperStatus = trap.get('ifOperStatus', getSnmp(host,'IF-MIB::ifOperStatus.'+ifIndex))
-
-        return Port(
+        ifOperStatus = find_state(ifOperStatus)
+        if ifAdminStatus or ifOperStatus:
+            return Port(
                     host = host,
                     hostname = hostname,
                     event = event,
@@ -47,3 +56,5 @@ class PortProcessor(object):
                     ifAlias = ifAlias,
                     ifAdminStatus = ifAdminStatus,
                     ifOperStatus = ifOperStatus)
+        else:
+            return None
