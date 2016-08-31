@@ -3,7 +3,7 @@
 ### What is it? ###
 
 * The system for handle SNMP-traps and sending combined notifications.
-* Version 0.3
+* Version 0.4
 
 ### How do I get set up? ###
 
