@@ -143,8 +143,8 @@ def get_description(trap):
     return trap.ifAlias if trap.ifAlias not in (None,'') else 'None'
 
 def for_html_title_one_trap(trap):
-    template_description = u'Harvey. {host}: {port} ({description}) {event}'
-    template_none = u'Harvey. {host}: {port} {event}'
+    template_description = u'{host}: {port} ({description}) {event}'
+    template_none = u'{host}: {port} {event}'
 
     host = get_hostname(trap)
     description = get_description(trap)
@@ -181,8 +181,8 @@ def get_event_for_one_port(traps):
     return event
 
 def for_html_title_one_port(traps):
-    template_description = u'Harvey. {host}: {port} ({description}) {event}'
-    template_none = u'Harvey. {host}: {port} {event}'
+    template_description = u'{host}: {port} ({description}) {event}'
+    template_none = u'{host}: {port} {event}'
     
     trap = traps[0]
     host = get_hostname(trap)
