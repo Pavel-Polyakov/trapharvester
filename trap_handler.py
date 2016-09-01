@@ -11,7 +11,7 @@ import logging
 import time
 from config import MAIL_TO
 from functions import for_html_trap_list, for_html_title
-from threading import Thread
+from multiprocessing import Process
 
 logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.INFO, filename = u'/var/log/trap_handler.log')
 formatter = logging.Formatter('%(asctime)s - %(message)s')
@@ -19,10 +19,13 @@ formatter = logging.Formatter('%(asctime)s - %(message)s')
 def notify(trap):
     time.sleep(30)
     if trap.is_last():
+        # the trap is last in sequence from this host
+        # so we notify about all the traps in the sequence
         traps_raw = trap.getcircuit()
         traps_for_notification = []
         for trap in traps_raw:
             if trap.ifName is not None:
+                # ignore subinterfaces
                 if '.' not in trap.ifName:
                     if not trap.is_blocked():
                         traps_for_notification.append(trap)
@@ -46,7 +49,7 @@ if __name__ == "__main__":
     # parse trap 
     processor = Processor()
     trap = processor.work(raw)
-
+    logging.info(raw)
     if trap is None:
         logging.info("I don't know how to deal with it:\n\n"+raw)
     else:
@@ -60,7 +63,8 @@ if __name__ == "__main__":
         # add to the notification queue 
         trap.add_to_queue()
         
-        # try to notify 
-        t = Thread(target=notify, args=(trap,))
-        t.daemon = True
-        t.start()
+        # try to notify in background process 
+        p = Process(target=notify, args=(trap,))
+        p.daemon = True
+        p.start()
+        exit()

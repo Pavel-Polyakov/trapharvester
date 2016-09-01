@@ -1,6 +1,3 @@
-# It's copied from stackoverflow
-# http://stackoverflow.com/questions/6270782/how-to-send-an-email-with-python
-
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
