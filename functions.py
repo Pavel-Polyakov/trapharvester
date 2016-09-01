@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 __author__ = "Pavel Polyakov"
 __copyright__ = "Copyright (C) 2016 Pavel Polyakov"
-__version__ = "0.4"
+__version__ = "0.5"
 
 from subprocess import check_output, CalledProcessError
 import re
 
 from collections import Counter
 from html_templates import mail_template_full, mail_template_style, template_host, template_port, template_port_additional, template_event, template_port_still_flapping, template_port_stop_flapping
-from config import SNMP_COMMUNITY
+from config import SNMP_COMMUNITY, TRANSLATE
 
 def getSnmp(host,oid):
     if host is not None:
@@ -223,7 +223,7 @@ def for_html_title_one_host(traps):
         count = events_count[event]
         if count == 1:
             events.append(template_event.format(count=u'1',
-                                                noun=u'порт',
+                                                noun=u'порт' if TRANSLATE else 'port',
                                                 event=translate_one(event)).lower())
         else:
             events.append(template_event.format(count=str(count),
@@ -249,7 +249,10 @@ def translate_ports(count):
         '9': u'портов',
     }
     w = str(count)[-1]
-    return variants.get(w, 'порт')
+    if TRANSLATE:
+        return variants.get(w, 'порт')
+    else:
+        return 'ports'
 
 def translate_one(event):
     variants = {
@@ -263,7 +266,10 @@ def translate_one(event):
         'down and up': u'Упал и Поднялся',
         'up and down': u'Поднялся и Упал',
     }
-    return variants.get(event.lower(), event)
+    if TRANSLATE:
+        return variants.get(event.lower(), event)
+    else:
+        return event
 
 def translate_many(event):
     variants = {
@@ -277,4 +283,7 @@ def translate_many(event):
         'down and up': u'Упали и Поднялись',
         'up and down': u'Поднялись и Упали',
     }
-    return variants.get(event.lower(), event)
+    if TRANSLATE:
+        return variants.get(event.lower(), event)
+    else:
+        return event

@@ -1,6 +1,6 @@
 __author__ = "Pavel Polyakov"
 __copyright__ = "Copyright (C) 2016 Pavel Polyakov"
-__version__ = "0.4"
+__version__ = "0.5"
 
 import re
 import time
