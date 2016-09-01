@@ -15,23 +15,18 @@ yum -y install mysql
 yum -y install epel-release
 yum -y install -y python-pip
 pip install sqlalchemy
-pip install pymysql
-        </pre>
+pip install pymysql</pre>
     </li>
     <li>
       <h2>Configure mySQL</h2>
       <ul>
       <li>
       <h3>login to mysql</h3>
-      <pre>
-$ mysql
-      </pre>
+      <pre>$ mysql</pre>
       </li>
       <li>
       <h3>create database</h3>
-      <pre>
-create database traps;
-      </pre>
+      <pre>create database traps;</pre>
       </li>
       <li>
       <h3>create user</h3>
@@ -39,8 +34,7 @@ create database traps;
 CREATE USER 'flap'@'localhost' IDENTIFIED BY 'flapmyport';
 GRANT ALL PRIVILEGES ON * . traps TO 'flap'@'localhost';
 GRANT ALL PRIVILEGES ON `traps`.* TO `flap`@`localhost`;
-FLUSH PRIVILEGES;
-      </pre>
+FLUSH PRIVILEGES;</pre>
       </li>
     </ul>
     </li>
@@ -54,14 +48,12 @@ disableAuthorization yes
 sqlMaxQueue 10
 sqlSaveInterval 0
 outputOption X
-traphandle default /usr/local/src/trapharvester/trap_handler.py
-          </pre>
+traphandle default /usr/local/src/trapharvester/trap_handler.py</pre>
         </li>
         <li>
         <h3>and start snmtrapd</h3>
           <pre>
-sudo snmptrapd -fnLo &
-          </pre>
+sudo snmptrapd -fnLo &</pre>
         </li>
         </ul>
     </li>
@@ -73,14 +65,12 @@ sudo snmptrapd -fnLo &
           <pre>
 cd /usr/local/src
 git clone http://github.com/Pavel-Polyakov/trapharvester.git
-cd trapharvester
-          </pre>
+cd trapharvester</pre>
        </li>
        <li>
         <h3>Rename <b>config_default.py</b> to <b>config.py</b></h3>
           <pre>
-mv config_default.py config.py
-          </pre>
+mv config_default.py config.py</pre>
         </li>
         <li>
 <h3>Edit <b>config.py</b> with your favorite text editor</h3>
