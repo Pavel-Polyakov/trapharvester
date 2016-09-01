@@ -11,4 +11,4 @@
 * Edit **config.py** for your mysql database settings
 * Add the next row in **/etc/snmp/snmptrapd.conf**
         
-        traphandle default ${PATH}/trap_handler.sh
+        traphandle default ${PATH}/trap_handler.py
