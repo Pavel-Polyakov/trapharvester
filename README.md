@@ -84,10 +84,11 @@ mv config_default.py config.py
         </li>
         <li>
 <h3>Edit <b>config.py</b> with your favorite text editor</h3>
-configure it for your mysql database
-your_username: instead 'flap'
-your_server: instead 'localhost'
-your_database: instead 'traps'
+configure it for your mysql database.
+<b>your_username</b>: instead 'flap', <b>your_server</b>: instead 'localhost', <b>your_database</b>: instead 'traps'
+
+<h5>if you have configured the database as I described above that there is nothing needed to change</h5>
+
 <pre>
 DB_URL = 'mysql+pymysql://flap:flapmyport@localhost/traps'
 </pre>
