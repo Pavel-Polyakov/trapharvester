@@ -198,7 +198,8 @@ def for_html_title_one_port(traps):
                            event=event)
 
 def for_html_title_one_host(traps):
-    template = u'Harvey. {host}: {events}'
+    # template = u'Harvey. {host}: {events}'
+    template = u'{host}: {events}'
     template_event = u'{count} {noun} {event}'
     trap = traps[0]
 
