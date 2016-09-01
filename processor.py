@@ -24,9 +24,12 @@ def find_state(message):
         return None
 
 class PortProcessor(object):
-    """Trap example:
-    UDP: [192.168.168.222]:59010->[85.112.112.25]:162
-    UDP: [192.168.168.222]:59010->[85.112.112.25]:162
+    """
+    Return Trap object.
+
+    Trap example:
+    UDP: [192.168.168.222]:59010->[192.168.168.100]:162
+    UDP: [192.168.168.222]:59010->[192.168.168.100]:162
     DISMAN-EVENT-MIB::sysUpTimeInstance 5:5:34:58.39
     SNMPv2-MIB::snmpTrapOID.0 IF-MIB::linkUp
     IF-MIB::ifIndex.567 567

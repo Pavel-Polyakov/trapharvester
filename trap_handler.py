@@ -11,39 +11,39 @@ import logging
 import time
 from config import MAIL_TO
 from functions import for_html_trap_list, for_html_title
+from threading import Thread
 
 logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.INFO, filename = u'/var/log/trap_handler.log')
 formatter = logging.Formatter('%(asctime)s - %(message)s')
 
-trap_up = """UDP: [192.168.168.222]:59010->[85.112.112.25]:162
-UDP: [192.168.168.222]:59010->[85.112.112.25]:162
-DISMAN-EVENT-MIB::sysUpTimeInstance 5:19:57:42.82
-SNMPv2-MIB::snmpTrapOID.0 IF-MIB::linkUp
-IF-MIB::ifIndex[544] 544
-IF-MIB::ifAdminStatus[544] 1
-IF-MIB::ifOperStatus[544] 1
-IF-MIB::ifName[544] ge-0/0/21"""
+def notify(trap):
+    time.sleep(30)
+    if trap.is_last():
+        traps_raw = trap.getcircuit()
+        traps_for_notification = []
+        for trap in traps_raw:
+            if trap.ifName is not None:
+                if '.' not in trap.ifName:
+                    if not trap.is_blocked():
+                        traps_for_notification.append(trap)
 
-trap_down = """UDP: [192.168.168.222]:59010->[85.112.112.25]:162
-UDP: [192.168.168.222]:59010->[85.112.112.25]:162
-DISMAN-EVENT-MIB::sysUpTimeInstance 5:19:57:42.82
-SNMPv2-MIB::snmpTrapOID.0 IF-MIB::linkDown
-IF-MIB::ifIndex[544] 544
-IF-MIB::ifAdminStatus[544] 1
-IF-MIB::ifOperStatus[544] 0
-IF-MIB::ifName[544] ge-0/0/21"""
+                    for trap in traps_raw:
+                        if not trap.is_blocked() and trap.is_flapping():
+                            trap.block()
+
+                    for trap in traps_raw:
+                        trap.del_from_queue()
+
+                    text_main = for_html_trap_list(traps_for_notification)
+                    text_title = for_html_title(traps_for_notification)
+                    send_mail(text_title, MAIL_TO, text_main)
+                    logging.info(text_title)
+
 
 if __name__ == "__main__":
-    # just for testing
-    argv = sys.argv
-    if len(argv) > 1:
-        if argv[1] == 'up':
-            raw = trap_up
-        if argv[1] == 'down':
-            raw = trap_down
-    else:
-        raw = sys.stdin.read()
-
+    raw = sys.stdin.read()
+    
+    # parse trap 
     processor = Processor()
     trap = processor.work(raw)
 
@@ -51,30 +51,16 @@ if __name__ == "__main__":
         logging.info("I don't know how to deal with it:\n\n"+raw)
     else:
         logging.info(trap)
-	s,e = connect_db()
+        
+        # add to the database
+        s,e = connect_db()
         s.add(trap)
         s.commit()
+        
+        # add to the notification queue 
         trap.add_to_queue()
-	logging.info(raw)
-        time.sleep(30)
-
-        if trap.is_last():
-            traps_raw = trap.getcircuit()
-            traps_for_notification = []
-            for trap in traps_raw:
-		if trap.ifName is not None:
-		    if '.' not in trap.ifName:
-			if not trap.is_blocked():
-			    traps_for_notification.append(trap)
-
-            for trap in traps_raw:
-                if not trap.is_blocked() and trap.is_flapping():
-                    trap.block()
-
-            for trap in traps_raw:
-                trap.del_from_queue()
-
-            text_main = for_html_trap_list(traps_for_notification)
-            text_title = for_html_title(traps_for_notification)
-            send_mail(text_title, MAIL_TO, text_main)
-            logging.info(text_title)
+        
+        # try to notify 
+        t = Thread(target=notify, args=(trap,))
+        t.daemon = True
+        t.start()
