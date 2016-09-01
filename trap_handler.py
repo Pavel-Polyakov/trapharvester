@@ -11,7 +11,7 @@ import logging
 import time
 from config import MAIL_TO
 from functions import for_html_trap_list, for_html_title
-from multiprocessing import Process
+import os
 
 logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.INFO, filename = u'/var/log/trap_handler.log')
 formatter = logging.Formatter('%(asctime)s - %(message)s')
@@ -36,11 +36,11 @@ def notify(trap):
 
                     for trap in traps_raw:
                         trap.del_from_queue()
-
-                    text_main = for_html_trap_list(traps_for_notification)
-                    text_title = for_html_title(traps_for_notification)
-                    send_mail(text_title, MAIL_TO, text_main)
-                    logging.info(text_title)
+        
+        text_main = for_html_trap_list(traps_for_notification)
+        text_title = for_html_title(traps_for_notification)
+        send_mail(text_title, MAIL_TO, text_main)
+        logging.info(text_title)
 
 
 if __name__ == "__main__":
@@ -64,7 +64,8 @@ if __name__ == "__main__":
         trap.add_to_queue()
         
         # try to notify in background process 
-        p = Process(target=notify, args=(trap,))
-        p.daemon = True
-        p.start()
-        exit()
+        pid = os.fork()
+        if not pid:
+            notify(trap)
+        else:
+            exit()
