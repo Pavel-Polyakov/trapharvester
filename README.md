@@ -8,7 +8,8 @@
 ### How do I get set up? ###
 
 * Download and install **snmptrapd**
+* Rename **config_default.py** to **config.py**
 * Edit **config.py** for your mysql database settings
-* Add the next row in **/etc/snmp/snmptrapd.conf**
+* Add row in **/etc/snmp/snmptrapd.conf**
         
         traphandle default ${PATH}/trap_handler.py
