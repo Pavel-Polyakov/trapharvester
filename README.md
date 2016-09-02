@@ -74,23 +74,34 @@ mv config_default.py config.py</pre>
         </li>
         <li>
 <h3>Edit <b>config.py</b> with your favorite text editor</h3>
+<ul>
+<li>
 configure it for your mysql database.
-<b>your_username</b>: instead 'flap', <b>your_server</b>: instead 'localhost', <b>your_database</b>: instead 'traps'
-
+<ul>
+<li><b>your_username</b>: instead 'flap'</li>
+<li><b>your_server</b>: instead 'localhost'</li>
+<li><b>your_database</b>: instead 'traps'</li>
+</ul>
 <h5>if you have configured the database as I described above that there is nothing needed to change</h5>
 
 <pre>
 DB_URL = 'mysql+pymysql://flap:flapmyport@localhost/traps'
 </pre>
+</li>
+<li>
 Change <b>from</b> and <b>to</b> mail-adresses
 <pre>
 MAIL_FROM = 'trap_harvester@yourdomain.com'
 MAIL_TO = ['user_first@yourdomain.com','user_second@yourdomain.com']
 </pre>
+</li>
+<li>
 Configure SNMP_COMMUNITY — it's needed for getting description of interface and hostname of device
 <pre>
 SNMP_COMMUNITY = 'your_SNMP_community'
 </pre>
+</li>
+<li>
 This parameter change only if you understand what you do
 
 <i>Flapping interface</i> flaps more then <b>FLAP_THR_COUNT</b> in the last <b>FLAP_THR_MINUTES</b>
@@ -98,10 +109,14 @@ This parameter change only if you understand what you do
 FLAP_THR_MINUTES = 15
 FLAP_THR_COUNT = 20
 </pre>
+</li>
+<li>
 Set this variable to <b>True</b> for receive mails in Russian
 <pre>
 TRANSLATE = False
 </pre>
+</li>
+</ul>
 </li>
 </ul>
 </ol>
