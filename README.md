@@ -21,15 +21,15 @@ pip install pymysql</pre>
       <h2>Configure mySQL</h2>
       <ul>
       <li>
-      <h3>login to mysql</h3>
+      <h3>Login to mysql</h3>
       <pre>$ mysql</pre>
       </li>
       <li>
-      <h3>create database</h3>
+      <h3>Create database</h3>
       <pre>create database traps;</pre>
       </li>
       <li>
-      <h3>create user</h3>
+      <h3>Create user</h3>
       <pre>
 CREATE USER 'flap'@'localhost' IDENTIFIED BY 'flapmyport';
 GRANT ALL PRIVILEGES ON * . traps TO 'flap'@'localhost';
@@ -51,7 +51,7 @@ outputOption X
 traphandle default /usr/local/src/trapharvester/trap_handler.py</pre>
         </li>
         <li>
-        <h3>and start snmtrapd</h3>
+        <h3>And start <b>snmtrapd</b></h3>
           <pre>
 sudo snmptrapd -fnLo &</pre>
         </li>
@@ -76,13 +76,13 @@ mv config_default.py config.py</pre>
 <h3>Edit <b>config.py</b> with your favorite text editor</h3>
 <ul>
 <li>
-configure it for your mysql database.
+Configure it for your mysql database.
 <ul>
 <li><b>your_username</b>: instead 'flap'</li>
 <li><b>your_server</b>: instead 'localhost'</li>
 <li><b>your_database</b>: instead 'traps'</li>
 </ul>
-<h5>if you have configured the database as I described above that there is nothing needed to change</h5>
+<h5>If you have configured the database as I described above that there is nothing needed to change</h5>
 
 <pre>
 DB_URL = 'mysql+pymysql://flap:flapmyport@localhost/traps'
