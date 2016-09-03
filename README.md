@@ -1,4 +1,5 @@
 # TrapHarvester #
+TrapHarvester is a system for handle SNMP-traps and sending combined notifications.
 
 ### What is it? ###
 <img src="https://raw.githubusercontent.com/Pavel-Polyakov/trapharvester/master/Img/Screenshot1.png" alt="TrapHarvester"/>
