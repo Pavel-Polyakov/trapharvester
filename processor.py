@@ -1,6 +1,6 @@
 __author__ = "Pavel Polyakov"
 __copyright__ = "Copyright (C) 2016 Pavel Polyakov"
-__version__ = "0.5"
+__version__ = "0.6"
 
 import re
 import time
@@ -44,7 +44,8 @@ class PortProcessor(object):
         ifIndex = trap.get('ifIndex')
         ifName = trap.get('ifName', getSnmp(host,'IF-MIB::ifName.'+ifIndex))
         ifAlias = trap.get('ifAlias', getSnmp(host,'IF-MIB::ifAlias.'+ifIndex))
-        
+        if 'No Such Instance currently exists at this OID' in ifAlias:
+             ifAlias = ''
         ifAdminStatus = trap.get('ifAdminStatus', getSnmp(host,'IF-MIB::ifAdminStatus.'+ifIndex))
         ifAdminStatus = find_state(ifAdminStatus)
         ifOperStatus = trap.get('ifOperStatus', getSnmp(host,'IF-MIB::ifOperStatus.'+ifIndex))

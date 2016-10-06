@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __author__ = "Pavel Polyakov"
 __copyright__ = "Copyright (C) 2016 Pavel Polyakov"
-__version__ = "0.5"
+__version__ = "0.6"
 
 from subprocess import check_output, CalledProcessError
 import re
@@ -41,16 +41,16 @@ def parseTrap(data):
     except ValueError:
         return {}
 
-def for_html_trap_list(traps):
+def for_html_trap_list(traps,s):
     if len(traps) > 0:
         text_hosts = ''
         hosts = set([(x.host,x.hostname) for x in traps])
         for host in hosts:
             host_traps = [x for x in traps if x.host == host[0]]
-            text_hosts += for_html_host(host_traps)
+            text_hosts += for_html_host(host_traps,s)
         return mail_template_full.format(text_hosts=text_hosts,style=mail_template_style)
 
-def for_html_host(traps):
+def for_html_host(traps,s):
     if len(traps) > 0:
         trap = traps[-1]
         hostip = trap.host
@@ -59,12 +59,13 @@ def for_html_host(traps):
         ports_text = ''
         for port in ports:
             port_traps = [x for x in traps if x.ifName == port]
-            ports_text += for_html_port(port_traps)
+            ports_text += for_html_port(port_traps,s)
         host_text = template_host.format(hostname=hostname,hostip=hostip,ports=ports_text)
         return host_text
 
-def for_html_port(traps):
+def for_html_port(traps,s):
     if len(traps) > 0:
+	
         trap = traps[-1]
         name = trap.ifName
         description = get_description(trap)
@@ -72,7 +73,7 @@ def for_html_port(traps):
             description = ''
         else:
             description = '({})'.format(description)
-        additional = get_additional(trap)
+        additional = get_additional(trap,s)
         mood = get_mood(additional)
         if additional == 'Still Flapping':
             return template_port_still_flapping.format(name=name,description=description,mood=mood,additional=additional)
@@ -85,14 +86,14 @@ def for_html_port(traps):
         text_port = template.format(name=name,description=description,mood=mood,additional=additional,events=events)
         return text_port
 
-def get_additional(trap):
+def get_additional(trap,s):
     if hasattr(trap, 'additional'):
         return trap.additional
     else:
         additional = None
-        if trap.is_flapping():
+        if trap.is_flapping(s):
             additional = 'Flapping'
-            if trap.is_blocked():
+            if trap.is_blocked(s):
                 additional = 'Blocked for flapping'
             return additional
 
@@ -123,16 +124,16 @@ def get_mood(event):
         return None
 
 
-def for_html_title(traps):
+def for_html_title(traps,s):
     if len(traps) == 1:
         """single trap"""
-        return for_html_title_one_trap(traps[0])
+        return for_html_title_one_trap(traps[0],s)
     if len(set([(x.ifName,x.host) for x in traps])) == 1:
         """single port"""
-        return for_html_title_one_port(traps)
+        return for_html_title_one_port(traps,s)
     if len(set([x.host for x in traps])) == 1:
         """single host"""
-        return for_html_title_one_host(traps)
+        return for_html_title_one_host(traps,s)
     else:
         return 'Harvey. TRAPS'
 
@@ -142,14 +143,14 @@ def get_hostname(trap):
 def get_description(trap):
     return trap.ifAlias if trap.ifAlias not in (None,'') else 'None'
 
-def for_html_title_one_trap(trap):
+def for_html_title_one_trap(trap,s):
     template_description = u'{host}: {port} ({description}) {event}'
     template_none = u'{host}: {port} {event}'
 
     host = get_hostname(trap)
     description = get_description(trap)
     # event variable
-    event = get_event_for_one_port([trap])
+    event = get_event_for_one_port([trap],s)
     event = translate_one(event)
 
     if description == 'None':
@@ -162,10 +163,10 @@ def for_html_title_one_trap(trap):
                            description=description,
                            event=event)
 
-def get_event_for_one_port(traps):
+def get_event_for_one_port(traps,s):
     # event variable
     trap = traps[0]
-    additional = get_additional(trap)
+    additional = get_additional(trap,s)
     if additional == 'Stop Flapping':
         last_event = traps[-1].event
         event = '{} and {}'.format(additional,clean_event(traps[-1].event))
@@ -180,14 +181,14 @@ def get_event_for_one_port(traps):
             event = '{} and {}'.format(first,last)
     return event
 
-def for_html_title_one_port(traps):
+def for_html_title_one_port(traps,s):
     template_description = u'{host}: {port} ({description}) {event}'
     template_none = u'{host}: {port} {event}'
     
     trap = traps[0]
     host = get_hostname(trap)
     description = get_description(trap)
-    event = get_event_for_one_port(traps)
+    event = get_event_for_one_port(traps,s)
     event = translate_one(event)
     
     if description == 'None':
@@ -200,7 +201,7 @@ def for_html_title_one_port(traps):
                            description=description,
                            event=event)
 
-def for_html_title_one_host(traps):
+def for_html_title_one_host(traps,s):
     # template = u'Harvey. {host}: {events}'
     template = u'{host}: {events}'
     template_event = u'{count} {noun} {event}'
@@ -214,7 +215,7 @@ def for_html_title_one_host(traps):
     ports = set([x.ifName for x in traps])
     for port in ports:
         port_traps = [x for x in traps if x.ifName == port]
-        port_event = get_event_for_one_port(port_traps)
+        port_event = get_event_for_one_port(port_traps,s)
         events_list.append(port_event)
 
     events_count = Counter(events_list)

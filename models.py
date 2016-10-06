@@ -1,6 +1,6 @@
 __author__ = "Pavel Polyakov"
 __copyright__ = "Copyright (C) 2016 Pavel Polyakov"
-__version__ = "0.5"
+__version__ = "0.6"
 
 from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy.sql import func
@@ -61,61 +61,66 @@ class Port(BasePort):
                     ifname = self.ifName,
                     ifalias = self.ifAlias)
 
-    def is_blocked(self):
-        b = self._get_session().query(BlackPort).\
+    def is_blocked(self,s):
+        b = s.query(BlackPort).\
                     filter(BlackPort.host == self.host).\
                     filter(BlackPort.ifIndex == self.ifIndex).first()
         return bool(b)
 
-    def is_flapping(self):
+    def is_flapping(self,s):
         minutes = FLAP_THR_MINUTES
         threshold = FLAP_THR_COUNT
-        count = self._get_session().query(Port).\
+        count = s.query(Port).\
                     filter(Port.host == self.host).\
                     filter(Port.ifIndex == self.ifIndex).\
                     filter(Port.time > self.time - timedelta(minutes=minutes)).count()
         return count > threshold
 
-    def is_flapping_now(self):
+    def is_flapping_now(self,s):
         minutes = FLAP_THR_MINUTES
         threshold = FLAP_THR_COUNT
         before = func.now() - timedelta(minutes=minutes)
-        count = self._get_session().query(Port).\
+        count = s.query(Port).\
                     filter(Port.host == self.host).\
                     filter(Port.ifIndex == self.ifIndex).\
                     filter(Port.time > before).count()
         return count > threshold
 
-    def block(self):
+    def block(self,s):
         b = BlackPort(host = self.host, ifIndex = self.ifIndex, added='auto')
-        self._get_session().add(b)
-        self._get_session().commit()
+        s.add(b)
+        s.commit()
 
-    def unblock(self):
-        self._get_session().query(BlackPort).\
+    def unblock(self,s):
+        s.query(BlackPort).\
                     filter(BlackPort.host == self.host).\
                     filter(BlackPort.ifIndex == self.ifIndex).delete()
-        self._get_session().commit()
+        s.commit()
 
-    def is_last(self):
-        traps = self.getcircuit()
-        if len(traps) > 0:
-            return self.id == traps[-1].id
+    def get_tasks(self,s):
+        tasks = s.query(Task).filter(Task.host==self.host).all()
+	tasks_ids = [x.trap_id for x in tasks]
+        return tasks_ids
+
+    def is_last(self,s):
+        tasks = s.query(Task).filter(Task.host==self.host).all()
+	if not tasks:
+	    return True
+	tasks_ids = [x.trap_id for x in tasks]
+	if len(tasks) > 0:
+            return self.id == tasks_ids[-1]
         else:
             return False
 
-    def add_to_queue(self):
-        s = self._get_session()
+    def add_to_queue(self,s):
         s.add(Task(trap_id=self.id,host=self.host))
         s.commit()
 
-    def del_from_queue(self):
-        s = self._get_session()
+    def del_from_queue(self,s):
         s.query(Task).filter(Task.trap_id == self.id).delete()
         s.commit()
 
-    def getcircuit(self):
-        s = self._get_session()
+    def getcircuit(self,s):
         queue = s.query(Task).filter(Task.host==self.host).all()
         queue_ids = [x.trap_id for x in queue]
         queue_traps = s.query(Port).filter(Port.id.in_([x for x in queue_ids])).all()

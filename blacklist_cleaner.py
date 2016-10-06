@@ -1,7 +1,7 @@
 #!/usr/bin/python
 __author__ = "Pavel Polyakov"
 __copyright__ = "Copyright (C) 2016 Pavel Polyakov"
-__version__ = "0.5"
+__version__ = "0.6"
 
 import sys
 from models import connect_db, BlackPort, Port
@@ -21,16 +21,16 @@ if __name__ == "__main__":
         hosts = set([x.host for x in ports_raw])
         for host in hosts:
             ports = [x for x in ports_raw if x.host == host]
-            whitelist = [x for x in ports if not x.is_flapping_now()]
+            whitelist = [x for x in ports if not x.is_flapping_now(s)]
             for p in whitelist:
-                p.unblock()
+                p.unblock(s)
                 p.additional = 'Stop Flapping'
             for p in [x for x in ports if x not in whitelist]:
                 p.additional = 'Still Flapping'
             for p in ports:
-                cir = p.getcircuit()
+                cir = p.getcircuit(s)
                 for c in cir:
-                    c.del_from_queue()
+                    c.del_from_queue(s)
             text_main = for_html_trap_list(ports)
             text_title = for_html_title(ports)
             send_mail(text_title, MAIL_TO, text_main)
