@@ -11,7 +11,7 @@ class Processor(object):
     def work(self, data):
         trap = parseTrap(data)
         oid = trap.get('snmpTrapOID.0', None)
-	if oid in ['IF-MIB::linkUp','IF-MIB::linkDown']:
+        if oid in ['IF-MIB::linkUp','IF-MIB::linkDown']:
             processor = PortProcessor()
             return processor.job(trap)
         else:
@@ -44,8 +44,10 @@ class PortProcessor(object):
         ifIndex = trap.get('ifIndex')
         ifName = trap.get('ifName', getSnmp(host,'IF-MIB::ifName.'+ifIndex))
         ifAlias = trap.get('ifAlias', getSnmp(host,'IF-MIB::ifAlias.'+ifIndex))
+        
         if 'No Such Instance currently exists at this OID' in ifAlias:
-             ifAlias = ''
+            ifAlias = ''
+        
         ifAdminStatus = trap.get('ifAdminStatus', getSnmp(host,'IF-MIB::ifAdminStatus.'+ifIndex))
         ifAdminStatus = find_state(ifAdminStatus)
         ifOperStatus = trap.get('ifOperStatus', getSnmp(host,'IF-MIB::ifOperStatus.'+ifIndex))
