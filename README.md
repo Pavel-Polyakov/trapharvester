@@ -3,7 +3,7 @@
 ### What is it? ###
 
 * The system for handle SNMP-traps and sending combined notifications.
-* Version 0.4
+* Version 0.5
 
 ### How do I get set up? ###
 
@@ -11,4 +11,4 @@
 * Edit **config.py** for your mysql database settings
 * Add the next row in **/etc/snmp/snmptrapd.conf**
         
-        traphandle default ${PATH}/trap_handler.sh
+        traphandle default ${PATH}/trap_handler.py
