@@ -18,7 +18,6 @@ class Processor(object):
             return None
 
 def find_state(message):
-    print(message)
     result = None
     digits = re.search('(1|0)',message,re.IGNORECASE)
     if digits:
