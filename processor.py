@@ -18,10 +18,25 @@ class Processor(object):
             return None
 
 def find_state(message):
-    try:
-        return re.search('(up|down)',message,re.IGNORECASE).group().lower()
-    except AttributeError:
-        return None
+    print(message)
+    result = None
+    digits = re.search('(1|0)',message,re.IGNORECASE)
+    if digits:
+        digit = digits.group().lower()
+        if '1' in digit:
+            result = 'up'
+        elif '0' in digit:
+            result = 'down'
+        return result
+    words = re.search('(up|down)',message,re.IGNORECASE)
+    if words:
+        word = words.group().lower()
+        if 'up' in word:
+            result = 'up'
+        elif 'down' in word:
+            result = 'down'
+        return result
+    return result
 
 class PortProcessor(object):
     """
