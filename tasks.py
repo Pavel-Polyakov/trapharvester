@@ -1,18 +1,19 @@
 import sys
-from models import connect_db, Port
-from processor import Processor
-from mailer import send_mail
+import itertools
 import logging
 import time
-from config import MAIL_TO
-from functions import for_html_trap_list, for_html_title
 import os
 from celery import Celery
 from celery.task.control import inspect
+from mailer import send_mail
+from config import MAIL_TO
+from processor import Processor
+from models import connect_db, Port
+from functions import for_html_trap_list, for_html_title
 
 tasks = Celery('tasks', broker='amqp://localhost')
 
-logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.DEBUG, filename = u'/var/log/trap_handler.log')
+logging.basicConfig(format = u'[%(asctime)s] %(message)s', level = logging.INFO, filename = u'/var/log/trap_handler.log')
 formatter = logging.Formatter('%(asctime)s - %(message)s')
 
 
@@ -32,19 +33,25 @@ def parse_raw(raw):
             if not trap.is_blocked(s):
                 s.refresh(trap)
                 trap_id = trap.id
+                trap_host = trap.host
                 # add to the notification queue.
                 trap.add_to_queue(s)
-                scheduled = inspect().scheduled()['celery@noc.ihome.ru']
-                if scheduled:
-                    same_host = [x for x in scheduled if trap.host in x['request']['args']]
-                    if same_host:
-                        for uuid in [x['request']['id'] for x in same_host]:
-                            tasks.control.revoke(uuid, terminate=True)
-                notify.apply_async(args=[trap_id,trap.host], countdown=30)
+                cancel_tasks_with_same_host(trap)
+                notify.apply_async(args=[trap_id,trap_host], countdown=30)
             s.close()
         else:
             logging.info('Ignore it')
 
+def cancel_tasks_with_same_host(trap):
+    scheduled_raw = tasks.control.inspect().scheduled().values()
+    scheduled = list(itertools.chain.from_iterable(scheduled_raw))
+    if scheduled:
+        same_host = [_task for _task in scheduled
+                      if trap.host in _task['request']['args'] and
+                      'tasks.notify' == _task['request']['name']]
+        if same_host:
+            for uuid in [_task['request']['id'] for _task in same_host]:
+                tasks.control.revoke(uuid, terminate=True)
 
 @tasks.task
 def notify(trap_id,host):
