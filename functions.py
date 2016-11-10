@@ -26,7 +26,7 @@ def parseTrap(data):
         res = {}
         data = data.split('\n')
         # common info for any trap
-        host, server = re.findall('\[(.*?)\]', data[0])
+        host, server = re.findall('\[(.*?)\]', data[1])
         # specific info is only after second line
         # slice each row for 2 parts: header and value
         pre = [re.split(':\s*?:',x,1)[-1] for x in data[2:] if x != '']
